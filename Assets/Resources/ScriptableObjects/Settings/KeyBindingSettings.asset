@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81fca3f540e4e324895ba5c532fe9b51, type: 3}
+  m_Name: KeyBindingSettings
+  m_EditorClassIdentifier: Assembly-CSharp::Player.Settings.KeyBindingSettings
+  defaultBindings:
+  - slotIndex: 0
+    inputActionName: Ability1
+    bindingIndex: 0
+  - slotIndex: 1
+    inputActionName: Ability2
+    bindingIndex: 0
+  - slotIndex: 2
+    inputActionName: Ability3
+    bindingIndex: 0
+  - slotIndex: 3
+    inputActionName: Ability4
+    bindingIndex: 0
+  - slotIndex: 4
+    inputActionName: Ability5
+    bindingIndex: 0
+  - slotIndex: 5
+    inputActionName: Interact
+    bindingIndex: 0
+  - slotIndex: 6
+    inputActionName: Sprint
+    bindingIndex: 0
+  currentBindings:
+  - slotIndex: 0
+    inputActionName: Ability1
+    bindingIndex: 0
+  - slotIndex: 1
+    inputActionName: Ability2
+    bindingIndex: 0
+  - slotIndex: 2
+    inputActionName: Ability3
+    bindingIndex: 0
+  - slotIndex: 3
+    inputActionName: Ability4
+    bindingIndex: 0
+  - slotIndex: 4
+    inputActionName: Ability5
+    bindingIndex: 0
+  - slotIndex: 5
+    inputActionName: Interact
+    bindingIndex: 0
+  - slotIndex: 6
+    inputActionName: Sprint
+    bindingIndex: 0

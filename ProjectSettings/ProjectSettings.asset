@@ -4,7 +4,7 @@
 PlayerSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 28
-  productGUID: a3f2f0f88988c7c45972d19b30544eb0
+  productGUID: 6e8e8e31cc5aa754aa34e6c2cd5c02a5
   AndroidProfiler: 0
   AndroidFilterTouchesWhenObscured: 0
   AndroidEnableSustainedPerformanceMode: 0
@@ -12,8 +12,8 @@ PlayerSettings:
   targetDevice: 2
   useOnDemandResources: 0
   accelerometerFrequency: 60
-  companyName: DefaultCompany
-  productName: Lazy Genius
+  companyName: UnluckySeven
+  productName: Physlab
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -524,7 +524,10 @@ PlayerSettings:
       m_Height: 720
       m_Kind: 1
       m_SubKind: 
-  m_BuildTargetBatching: []
+  m_BuildTargetBatching:
+  - m_BuildTarget: Standalone
+    m_StaticBatching: 1
+    m_DynamicBatching: 0
   m_BuildTargetShaderSettings: []
   m_BuildTargetGraphicsJobs: []
   m_BuildTargetGraphicsJobMode: []
@@ -864,14 +867,14 @@ PlayerSettings:
   editorAssembliesCompatibilityLevel: 1
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
-  metroPackageName: Lazy Genius
+  metroPackageName: Physlab
   metroPackageVersion: 
   metroCertificatePath: 
   metroCertificatePassword: 
   metroCertificateSubject: 
   metroCertificateIssuer: 
   metroCertificateNotAfter: 0000000000000000
-  metroApplicationDescription: Lazy Genius
+  metroApplicationDescription: Physlab
   wsaImages: {}
   metroTileShortName: 
   metroTileShowName: 0
@@ -942,10 +945,10 @@ PlayerSettings:
   captureStartupLogs: {}
   activeInputHandler: 1
   windowsGamepadBackendHint: 0
-  cloudProjectId: 2dd0b467-9930-41c1-9a9b-8889467f1c42
+  cloudProjectId: 2e870968-be3f-4e86-99c9-fca33e736d9a
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: Lazy Genius
+  projectName: Physlab
   organizationId: n1ston
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
