@@ -3,12 +3,10 @@ using UnityEngine;
 namespace Player
 {
     [RequireComponent(typeof(Rigidbody))]
-    [RequireComponent(typeof(CapsuleCollider))]
     public class PlayerMovement : MonoBehaviour
     {
         [Header("References")]
         [SerializeField] private Rigidbody rb;
-        [SerializeField] private CapsuleCollider capsuleCollider;
         [SerializeField] private Transform groundCheck;
         [SerializeField] private LayerMask groundLayer;
         [SerializeField] private AudioSource step;
@@ -42,9 +40,7 @@ namespace Player
         private void Awake()
         {
             if (!rb) rb = GetComponent<Rigidbody>();
-            if (!capsuleCollider) capsuleCollider = GetComponent<CapsuleCollider>();
             
-            SetupCapsuleCollider();
             SetupRigidbody();
             
             if (!groundCheck)
@@ -69,13 +65,6 @@ namespace Player
             rb.freezeRotation = true;
             rb.interpolation = RigidbodyInterpolation.Interpolate;
             rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
-        }
-        
-        private void SetupCapsuleCollider()
-        {
-            capsuleCollider.height = capsuleHeight;
-            capsuleCollider.center = new Vector3(0, 0, 0);
-            capsuleCollider.radius = 0.5f;
         }
         
         private void Update()
