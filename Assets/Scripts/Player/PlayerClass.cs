@@ -49,15 +49,30 @@ namespace Player
         
         protected virtual void SetupAbilities(PlayerController player)
         {
-            AbilitySystem abilitySystem = player.GetComponent<AbilitySystem>();
-            if (abilitySystem)
+            var abilitySystem = player.GetComponent<AbilitySystem>();
+            var slotSystem = player.GetComponent<AbilitySlotSystem>();
+
+            if (!abilitySystem)
             {
-                for (int i = 0; i < classAbilities.Count; i++)
+                return;
+            }
+
+            for (int i = 0; i < classAbilities.Count; i++)
+            {
+                var ability = classAbilities[i];
+                if (!ability)
                 {
-                    if (classAbilities[i])
-                    {
-                        abilitySystem.AddAbility(classAbilities[i], i);
-                    }
+                    continue;
+                }
+                
+                if (slotSystem)
+                {
+                    slotSystem.AddAvailableAbility(ability);
+                    slotSystem.AssignAbilityToSlot(ability, i);
+                }
+                else
+                {
+                    abilitySystem.AddAbility(ability, i);
                 }
             }
         }

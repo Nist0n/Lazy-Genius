@@ -1173,7 +1173,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 457bf4658e8527041a958bf64767f08b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PhysiXCore.Core.GameFlowManager
-  mainMenuSceneName: MainMenuScene
   gameplaySceneName: GameplayScene
   characterSelectionPanel: {fileID: 1585812153}
   characterCreationPanel: {fileID: 978986214}
@@ -3078,7 +3077,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SaveSystem.CharacterManager
   availableClasses:
-  - {fileID: 11400000, guid: e5f9a9b6e0767f543b9f49426324715b, type: 2}
+  - {fileID: 11400000, guid: 7c0b28c810ba0c84c8b8d500f045fd5f, type: 2}
 --- !u!4 &1208797248
 Transform:
   m_ObjectHideFlags: 0

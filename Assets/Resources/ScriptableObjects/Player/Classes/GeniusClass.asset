@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 546c5a478bfd2f44dbdccbeb5b8b377a, type: 3}
+  m_Name: GeniusClass
+  m_EditorClassIdentifier: Assembly-CSharp::Player.Genius
+  className: "\u0413\u0435\u043D\u0438\u0439"
+  description: "\u0411\u044C\u0451\u0442, \u0441\u0442\u0440\u0435\u043B\u044F\u0435\u0442,
+    \u043A\u043E\u0440\u043E\u0447\u0435 \u0441\u0438\u043B\u044C\u043D\u044B\u0439,
+    \u0432\u044B\u0431\u0438\u0440\u0430\u0439"
+  classIcon: {fileID: 21300000, guid: 772a3f02e15b95343a8890817bebdb65, type: 3}
+  healthModifier: 1
+  energyModifier: 1
+  classAbilities:
+  - {fileID: 11400000, guid: 9366f33293b8fc7469271d2e53d8428b, type: 2}
+  - {fileID: 11400000, guid: 442a8db0b5cbdf74c97670c7d21dbe77, type: 2}

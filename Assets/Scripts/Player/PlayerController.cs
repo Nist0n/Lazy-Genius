@@ -22,6 +22,7 @@ namespace Player
         [SerializeField] private PlayerStats baseStats;
         [SerializeField] private PlayerClass currentClass;
         [SerializeField] private Transform modelRoot;
+        [SerializeField] private Transform projectileSpawnPoint;
         
         [Header("Components")]
         private PlayerMovement _movement;
@@ -52,6 +53,9 @@ namespace Player
         public AbilitySlotSystem AbilitySlotSystem => _abilitySlotSystem;
         public PlayerInputHandler InputHandler => _inputHandler;
         public PlayerStateMachine StateMachine => _stateMachine;
+        public Transform ProjectileSpawnPoint => projectileSpawnPoint;
+        public Transform AimTarget => aimTarget;
+        public Camera MainCamera => _mainCamera;
 
         private Camera _mainCamera;
         
