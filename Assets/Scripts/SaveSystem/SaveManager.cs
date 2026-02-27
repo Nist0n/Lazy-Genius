@@ -81,6 +81,7 @@ namespace SaveSystem
             }
             catch (Exception e)
             {
+                Debug.LogError($"[SaveManager] Failed to save character: {e.Message}");
                 return false;
             }
         }
@@ -110,6 +111,7 @@ namespace SaveSystem
             }
             catch (Exception e)
             {
+                Debug.LogError($"[SaveManager] Failed to load character: {e.Message}");
                 return null;
             }
         }
@@ -133,6 +135,7 @@ namespace SaveSystem
             }
             catch (Exception e)
             {
+                Debug.LogError($"[SaveManager] Failed to delete character: {e.Message}");
                 return false;
             }
         }
@@ -166,6 +169,7 @@ namespace SaveSystem
             }
             catch (Exception e)
             {
+                Debug.LogError($"[SaveManager] Failed to load character index: {e.Message}");
                 _characterIndex = new CharacterIndex();
             }
         }
