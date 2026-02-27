@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace Player.States
 {
     public class WalkingState : IPlayerState
@@ -11,7 +13,8 @@ namespace Player.States
         
         public void OnEnter()
         {
-            // Логика при входе в состояние ходьбы
+            Debug.Log("Enter");
+            _player.PlAnimator?.PlayWalkAnimation(_player.InputHandler.MoveInput);
         }
         
         public void OnUpdate()

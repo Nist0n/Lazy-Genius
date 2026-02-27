@@ -19,7 +19,7 @@ namespace Player
         
         public void ChangeState(PlayerState newStateType)
         {
-            if (_currentStateType == newStateType) return;
+            if (_currentState != null && _currentStateType == newStateType) return;
             if (!_states.ContainsKey(newStateType)) return;
             
             _currentState?.OnExit();

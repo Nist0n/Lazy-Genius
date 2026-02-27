@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace Player.States
 {
     public class RunningState : IPlayerState
@@ -11,7 +13,7 @@ namespace Player.States
         
         public void OnEnter()
         {
-            // Логика при входе в состояние бега
+            _player.PlAnimator?.PlayRunAnimation(_player.InputHandler.MoveInput);
         }
         
         public void OnUpdate()

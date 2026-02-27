@@ -15,6 +15,8 @@ namespace Player.States
             {
                 _player.Movement.SetDead(true);
             }
+
+            _player.PlAnimator?.PlayDeathAnimation();
         }
         
         public void OnUpdate()

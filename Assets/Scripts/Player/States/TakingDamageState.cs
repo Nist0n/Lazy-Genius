@@ -17,6 +17,7 @@ namespace Player.States
         public void OnEnter()
         {
             _stunTimer = StunDuration;
+            _player.PlAnimator?.PlayHitAnimation();
         }
 
         public void OnUpdate()
@@ -27,7 +28,7 @@ namespace Player.States
                 return;
             }
 
-            if (_player.Movement == null)
+            if (!_player.Movement)
             {
                 return;
             }
@@ -46,7 +47,7 @@ namespace Player.States
                 return;
             }
 
-            if (_player.InputHandler != null && _player.InputHandler.SprintPressed)
+            if (_player.InputHandler && _player.InputHandler.SprintPressed)
             {
                 _player.StateMachine.ChangeState(PlayerState.Running);
             }

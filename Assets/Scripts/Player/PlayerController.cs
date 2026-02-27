@@ -5,6 +5,7 @@ using Player.States;
 using SaveSystem;
 using UI.Settings;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Player
 {
@@ -14,6 +15,7 @@ namespace Player
     [RequireComponent(typeof(AbilitySlotSystem))]
     [RequireComponent(typeof(PlayerInputHandler))]
     [RequireComponent(typeof(PlayerStateMachine))]
+    [RequireComponent(typeof(PlayerAnimator))]
     public class PlayerController : MonoBehaviour
     {
         [Header("References")]
@@ -28,6 +30,7 @@ namespace Player
         private AbilitySlotSystem _abilitySlotSystem;
         private PlayerInputHandler _inputHandler;
         private PlayerStateMachine _stateMachine;
+        private PlayerAnimator _playerPlAnimator;
         
         [Header("Camera")]
         [SerializeField] private PlayerCameraController cameraController;
@@ -41,6 +44,7 @@ namespace Player
         
         public PlayerStats BaseStats => baseStats;
         public AudioSource AudioOutput => audioSource;
+        public PlayerAnimator PlAnimator => _playerPlAnimator;
         public PlayerClass CurrentClass => currentClass;
         public PlayerMovement Movement => _movement;
         public HealthSystem HealthSystem => _healthSystem;
@@ -77,6 +81,7 @@ namespace Player
             _abilitySlotSystem = GetComponent<AbilitySlotSystem>();
             _inputHandler = GetComponent<PlayerInputHandler>();
             _stateMachine = GetComponent<PlayerStateMachine>();
+            _playerPlAnimator = GetComponent<PlayerAnimator>();
             
             if (!cameraController)
             {
