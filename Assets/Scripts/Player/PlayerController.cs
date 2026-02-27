@@ -19,6 +19,7 @@ namespace Player
         [Header("References")]
         [SerializeField] private PlayerStats baseStats;
         [SerializeField] private PlayerClass currentClass;
+        [SerializeField] private Transform modelRoot;
         
         [Header("Components")]
         private PlayerMovement _movement;
@@ -111,8 +112,8 @@ namespace Player
             _stateMachine.RegisterState(PlayerState.Idle, new IdleState(this));
             _stateMachine.RegisterState(PlayerState.Walking, new WalkingState(this));
             _stateMachine.RegisterState(PlayerState.Running, new RunningState(this));
-            _stateMachine.RegisterState(PlayerState.Jumping, new JumpingState(this));
             _stateMachine.RegisterState(PlayerState.Falling, new FallingState(this));
+            _stateMachine.RegisterState(PlayerState.TakingDamage, new TakingDamageState(this));
             _stateMachine.RegisterState(PlayerState.Dead, new DeadState(this));
 
             _stateMachine.ChangeState(PlayerState.Idle);
@@ -124,7 +125,6 @@ namespace Player
             _healthSystem.Initialize(maxHealth, baseStats.maxEnergy);
             
             _movement.SetMoveSpeed(baseStats.baseMoveSpeed);
-            _movement.SetJumpForce(baseStats.jumpForce);
         }
         
         public void SetClass(PlayerClass newClass)
@@ -140,13 +140,7 @@ namespace Player
             if (!_inputHandler) return;
 
             _movement.SetMoveInput(_inputHandler.MoveInput);
-            _movement.SetJumpInput(_inputHandler.JumpPressed);
             _movement.SetSprintInput(_inputHandler.SprintPressed);
-
-            if (_inputHandler.JumpPressed && _movement.IsGrounded && _stateMachine.CurrentStateType != PlayerState.Jumping)
-            {
-                _stateMachine.ChangeState(PlayerState.Jumping);
-            }
             
             if (cameraController)
             {
@@ -162,6 +156,30 @@ namespace Player
                     _movement.SetCameraTransform(_mainCamera.transform);
                 }
             }
+        }
+
+        private void LateUpdate()
+        {
+            UpdateModelRotation();
+        }
+
+        private void UpdateModelRotation()
+        {
+            if (!modelRoot || !cameraController)
+            {
+                return;
+            }
+
+            Transform orientation = cameraController.GetOrientation();
+            if (!orientation)
+            {
+                return;
+            }
+
+            Vector3 euler = orientation.rotation.eulerAngles;
+            euler.x = 0f;
+            euler.z = 0f;
+            modelRoot.rotation = Quaternion.Euler(euler);
         }
         
         private void SubscribeToEvents()

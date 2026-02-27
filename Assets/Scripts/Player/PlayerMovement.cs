@@ -16,8 +16,7 @@ namespace Player
         [SerializeField] private float sprintSpeed = 8f;
         [SerializeField] private float airControlMultiplier = 0.3f;
         
-        [Header("Jump Settings")]
-        [SerializeField] private float jumpForce = 5f;
+        [Header("Ground Check Settings")]
         [SerializeField] private float groundCheckRadius = 0.3f;
         [SerializeField] private float capsuleHeight = 2f;
         
@@ -26,12 +25,9 @@ namespace Player
         [SerializeField] private Transform orientation;
         
         private Vector2 _moveInput;
-        private bool _jumpInput;
         private bool _sprintInput;
         
         private bool _isGrounded;
-        private bool _isJumping;
-        private float _jumpHoldTimer;
         private bool _isDead = false;
         
         public bool IsGrounded => _isGrounded;
@@ -70,7 +66,6 @@ namespace Player
         private void Update()
         {
             CheckGrounded();
-            HandleJump();
             
             if (!cameraTransform)
             {
@@ -87,11 +82,6 @@ namespace Player
         public void SetMoveInput(Vector2 input)
         {
             _moveInput = input;
-        }
-        
-        public void SetJumpInput(bool input)
-        {
-            _jumpInput = input;
         }
         
         public void SetSprintInput(bool input)
@@ -171,30 +161,11 @@ namespace Player
         {
             Vector3 checkPosition = groundCheck.position;
             _isGrounded = Physics.CheckSphere(checkPosition, groundCheckRadius, groundLayer);
-            
-            if (_isGrounded && rb.linearVelocity.y <= 0.1f)
-            {
-                _isJumping = false;
-            }
-        }
-        
-        private void HandleJump()
-        {
-            if (_jumpInput && _isGrounded && !_isJumping)
-            {
-                rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-                _isJumping = true;
-            }
         }
         
         public void SetMoveSpeed(float speed)
         {
             moveSpeed = speed;
-        }
-        
-        public void SetJumpForce(float force)
-        {
-            jumpForce = force;
         }
         
         public void SetDead(bool dead)

@@ -18,6 +18,7 @@ namespace Player
         
         private float _lastEnergyUseTime;
         private bool _isDead;
+        private PlayerController _playerController;
         
         public event Action<float, float> OnHealthChanged;
         public event Action<float, float> OnEnergyChanged;
@@ -49,6 +50,11 @@ namespace Player
         public float GetHealth() => currentHealth;
         public float GetMaxHealth() => maxHealth;
         
+        private void Awake()
+        {
+            TryGetComponent(out _playerController);
+        }
+
         private void Start()
         {
             Initialize();
@@ -94,6 +100,11 @@ namespace Player
             
             currentHealth = Mathf.Max(0, currentHealth - damage);
             OnHealthChanged?.Invoke(currentHealth, maxHealth);
+
+            if (_playerController && currentHealth > 0f)
+            {
+                _playerController.StateMachine.ChangeState(PlayerState.TakingDamage);
+            }
             
             Game.Events.GameEvents.OnEntityDamaged(gameObject, damage);
             

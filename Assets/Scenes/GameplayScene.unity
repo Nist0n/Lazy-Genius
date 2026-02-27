@@ -9427,6 +9427,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Player.PlayerController
   baseStats: {fileID: 11400000, guid: c7e6e8ae325bf8b4aab01a4a0b15e858, type: 2}
   currentClass: {fileID: 0}
+  modelRoot: {fileID: 8601058140203935808}
   cameraController: {fileID: 4774028265245643627}
   aimTarget: {fileID: 3508681274786245301}
   deathCanvas: {fileID: 2150902365444169350}
@@ -9526,7 +9527,6 @@ MonoBehaviour:
   moveSpeed: 5
   sprintSpeed: 8
   airControlMultiplier: 1
-  jumpForce: 0.7
   groundCheckRadius: 0.1
   capsuleHeight: 2
   cameraTransform: {fileID: 382204270460423912}

@@ -33,10 +33,6 @@ namespace Player.States
                         _player.StateMachine.ChangeState(PlayerState.Walking);
                     }
                 }
-                else if (_player.Movement.Velocity.y > 0.1f)
-                {
-                    _player.StateMachine.ChangeState(PlayerState.Jumping);
-                }
             }
         }
         
