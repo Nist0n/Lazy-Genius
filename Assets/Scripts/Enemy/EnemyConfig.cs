@@ -31,5 +31,24 @@ namespace Enemy
         [Tooltip("Угол обзора (градусы)")]
         [Range(0f, 360f)]
         public float FieldOfView = 110f;
+
+        [Header("Ranged Enemy Settings")]
+        [Tooltip("Является ли враг дальнего боя")]
+        public bool IsRangedEnemy = false;
+
+        [Tooltip("Минимальная желаемая дистанция до игрока для стрельбы")]
+        public float PreferredMinDistance = 15f;
+
+        [Tooltip("Максимальная желаемая дистанция до игрока для стрельбы")]
+        public float PreferredMaxDistance = 25f;
+
+        [Tooltip("Дистанция, при которой враг начинает активно убегать от игрока")]
+        public float RunAwayDistance = 10f;
+
+        [Tooltip("Префаб снаряда, которым стреляет враг дальнего боя")]
+        public GameObject ProjectilePrefab;
+
+        [Tooltip("Урон снаряда (если 0, берётся AttackDamage)")]
+        public float ProjectileDamage = 0f;
     }
 }

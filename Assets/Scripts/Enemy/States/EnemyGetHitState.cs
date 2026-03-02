@@ -22,6 +22,12 @@ namespace Enemy.States
             {
                 float distance = Vector3.Distance(controller.transform.position, controller.PlayerTransform.position);
                 
+                if (config && config.IsRangedEnemy && controller.RangedCombatState != null)
+                {
+                    stateMachine.ChangeState(controller.RangedCombatState);
+                    return;
+                }
+
                 if (distance > config.AttackRange)
                 {
                     stateMachine.ChangeState(controller.ChaseState);

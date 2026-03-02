@@ -34,6 +34,7 @@ namespace Enemy
         public EnemyChaseState ChaseState { get; private set; }
         public EnemyAttackState AttackState { get; private set; }
         public EnemyGetHitState GetHitState { get; private set; }
+        public EnemyRangedCombatState RangedCombatState { get; private set; }
 
         private void OnEnable()
         {
@@ -84,6 +85,11 @@ namespace Enemy
             AttackState = new EnemyAttackState(this, StateMachine, enemyConfig);
             DeathState = new EnemyDeathState(this, StateMachine, enemyConfig);
             GetHitState = new EnemyGetHitState(this, StateMachine, enemyConfig);
+
+            if (enemyConfig && enemyConfig.IsRangedEnemy)
+            {
+                RangedCombatState = new EnemyRangedCombatState(this, StateMachine, enemyConfig);
+            }
             
             StateMachine.Initialize(IdleState);
         }
@@ -189,11 +195,14 @@ namespace Enemy
             return false;
         }
 
-        public void Attack ()=> AttackState.Attack();
+        public void Attack()
+        {
+            if (enemyConfig.IsRangedEnemy) RangedCombatState.FireProjectile();
+            else AttackState.Attack();
+        }
 
         private void GetHit(DamageInfo damageInfo)
         {
-            Debug.Log("GetHit");
             StateMachine.ChangeState(GetHitState);
         }
     }

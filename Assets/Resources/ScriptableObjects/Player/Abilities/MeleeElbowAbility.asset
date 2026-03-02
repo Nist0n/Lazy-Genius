@@ -18,7 +18,7 @@ MonoBehaviour:
   energyCost: 0
   isChanneled: 0
   damage: 10
-  hitRange: 1.5
+  hitRange: 0.75
   hitRadius: 0.75
   hitMask:
     serializedVersion: 2
