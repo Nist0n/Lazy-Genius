@@ -36,6 +36,7 @@ namespace Player
         [Header("Camera")]
         [SerializeField] private PlayerCameraController cameraController;
         [SerializeField] private Transform aimTarget;
+        [SerializeField] private float yRotation;
         
         [Header("UI")] 
         [SerializeField] private GameObject deathCanvas;
@@ -55,6 +56,7 @@ namespace Player
         public PlayerStateMachine StateMachine => _stateMachine;
         public Transform ProjectileSpawnPoint => projectileSpawnPoint;
         public Transform AimTarget => aimTarget;
+        public PlayerCameraController CameraController => cameraController;
         public Camera MainCamera => _mainCamera;
 
         private Camera _mainCamera;
@@ -188,6 +190,7 @@ namespace Player
             Vector3 euler = orientation.rotation.eulerAngles;
             euler.x = 0f;
             euler.z = 0f;
+            euler.y += yRotation;
             modelRoot.rotation = Quaternion.Euler(euler);
         }
         

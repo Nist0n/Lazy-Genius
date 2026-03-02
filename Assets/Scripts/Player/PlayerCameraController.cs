@@ -13,6 +13,7 @@ namespace Player
         [SerializeField] private float verticalLookLimit = 80f;
         [SerializeField] private bool useGlobalSensitivity = true;
         [SerializeField] private PlayerInputHandler inputHandler;
+        [SerializeField] private float yRotationAdditive;
         
         [Header("References")]
         [SerializeField] private Transform orientation;
@@ -168,19 +169,19 @@ namespace Player
         {
             if (orientation)
             {
-                orientation.rotation = Quaternion.Euler(0, _yRotation, 0);
+                orientation.rotation = Quaternion.Euler(0, _yRotation + yRotationAdditive, 0);
             }
             
-            transform.rotation = Quaternion.Euler(_xRotation, _yRotation, 0);
+            transform.rotation = Quaternion.Euler(_xRotation, _yRotation + yRotationAdditive, 0);
             
             if (cameraFollowTarget)
             {
-                cameraFollowTarget.rotation = Quaternion.Euler(_xRotation, _yRotation, 0);
+                cameraFollowTarget.rotation = Quaternion.Euler(_xRotation, _yRotation + yRotationAdditive, 0);
             }
             
             if (cameraLookAtTarget)
             {
-                cameraLookAtTarget.rotation = Quaternion.Euler(_xRotation, _yRotation, 0);
+                cameraLookAtTarget.rotation = Quaternion.Euler(_xRotation, _yRotation + yRotationAdditive, 0);
             }
             
             if (mainCamera)

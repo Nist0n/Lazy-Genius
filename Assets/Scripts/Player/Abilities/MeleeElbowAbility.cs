@@ -28,10 +28,16 @@ namespace Player.Abilities
 
             player.PlAnimator?.PlayAbilityAnimation(PlayerAnimator.AbilityAnimationType.MeleeElbow);
 
-            Transform originTransform = player.transform;
+            Transform originTransform = player.CameraController.GetOrientation();
             Vector3 forward = originTransform.forward;
 
             Vector3 origin = originTransform.position + Vector3.up * 1.0f + forward * hitRange;
+
+            var debugVisualizer = caster.GetComponent<MeleeElbowDebugVisualizer>();
+            if (debugVisualizer != null)
+            {
+                debugVisualizer.SetHitData(originTransform.position + Vector3.up * 1.0f, origin, hitRadius);
+            }
 
             Collider[] hits = Physics.OverlapSphere(origin, hitRadius, hitMask, QueryTriggerInteraction.Ignore);
 
