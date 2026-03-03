@@ -12,7 +12,6 @@ namespace Player
         [Header("Movement Settings")]
         [SerializeField] private float moveSpeed = 5f;
         [SerializeField] private float sprintSpeed = 8f;
-        [SerializeField] private float airControlMultiplier = 0.3f;
         
         [Header("Camera Reference")]
         [SerializeField] private Transform cameraTransform;
