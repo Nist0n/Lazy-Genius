@@ -26,7 +26,6 @@ namespace Player
         private Dictionary<int, InputAction> _slotInputActions = new Dictionary<int, InputAction>();
         
         public event Action<int, Ability> OnAbilityAssignedToSlot;
-        public event Action<int> OnAbilityRemovedFromSlot;
         public event Action<int> OnSlotInputActionChanged;
         
         public int MaxSlots => maxSlots;

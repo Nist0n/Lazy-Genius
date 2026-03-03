@@ -214,7 +214,6 @@ namespace Player
                 {
                     _inputHandler.OnAbility1Pressed += () => _abilitySystem.UseAbility(0);
                     _inputHandler.OnAbility2Pressed += () => _abilitySystem.UseAbility(1);
-                    _inputHandler.OnAbility3Pressed += () => _abilitySystem.UseAbility(2);
                 }
             }
         }

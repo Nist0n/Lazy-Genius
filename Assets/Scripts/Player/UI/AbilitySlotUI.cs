@@ -45,7 +45,6 @@ namespace Player.UI
                 if (_abilitySlotSystem)
                 {
                     _abilitySlotSystem.OnAbilityAssignedToSlot += OnAbilityAssigned;
-                    _abilitySlotSystem.OnAbilityRemovedFromSlot += OnAbilityRemoved;
                     _abilitySlotSystem.OnSlotInputActionChanged += OnSlotInputActionChanged;
                     
                     UpdateKeyBinding();
@@ -104,12 +103,6 @@ namespace Player.UI
             {
                 ClearSlot();
             }
-        }
-        
-        private void OnAbilityRemoved(int index)
-        {
-            if (index != slotIndex) return;
-            ClearSlot();
         }
         
         private void ClearSlot()
@@ -313,7 +306,6 @@ namespace Player.UI
             if (_abilitySlotSystem)
             {
                 _abilitySlotSystem.OnAbilityAssignedToSlot -= OnAbilityAssigned;
-                _abilitySlotSystem.OnAbilityRemovedFromSlot -= OnAbilityRemoved;
                 _abilitySlotSystem.OnSlotInputActionChanged -= OnSlotInputActionChanged;
             }
         }
