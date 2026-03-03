@@ -105,31 +105,10 @@ namespace Player
             return true;
         }
         
-        public void RemoveAbilityFromSlot(int slotIndex)
-        {
-            if (slotIndex < 0 || slotIndex >= maxSlots) return;
-            
-            assignedAbilities[slotIndex] = null;
-            
-            if (_abilitySystem)
-            {
-                _abilitySystem.RemoveAbility(slotIndex);
-            }
-            
-            OnAbilityRemovedFromSlot?.Invoke(slotIndex);
-        }
-        
         public Ability GetAbilityFromSlot(int slotIndex)
         {
             if (slotIndex < 0 || slotIndex >= maxSlots) return null;
             return assignedAbilities[slotIndex];
-        }
-
-        public KeyCode GetSlotKeyBinding(int slotIndex)
-        {
-            if (slotIndex < 0 || slotIndex >= maxSlots) return KeyCode.None;
-            if (slotIndex >= slotKeyBindings.Count) return KeyCode.None;
-            return slotKeyBindings[slotIndex];
         }
         
         public void SetSlotInputAction(int slotIndex, InputAction inputAction)

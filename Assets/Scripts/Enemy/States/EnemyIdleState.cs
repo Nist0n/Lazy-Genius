@@ -27,7 +27,7 @@ namespace Enemy.States
                 {
                     // Для обычных врагов — преследование в ближнем бою,
                     // для дальнобойных — сразу переходим в состояние поддержания дистанции.
-                    if (config != null && config.IsRangedEnemy && controller.RangedCombatState != null)
+                    if (config && config.IsRangedEnemy && controller.RangedCombatState != null)
                     {
                         stateMachine.ChangeState(controller.RangedCombatState);
                     }

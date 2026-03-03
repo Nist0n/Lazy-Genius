@@ -13,7 +13,6 @@ namespace Player.States
         
         public void OnEnter()
         {
-            Debug.Log("Работает не?");
             _player.PlAnimator?.PlayIdleAnimation();
         }
         
@@ -31,10 +30,6 @@ namespace Player.States
                     {
                         _player.StateMachine.ChangeState(PlayerState.Walking);
                     }
-                }
-                else if (!_player.Movement.IsGrounded)
-                {
-                    _player.StateMachine.ChangeState(PlayerState.Falling);
                 }
             }
         }

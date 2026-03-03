@@ -12,7 +12,6 @@ namespace Player
         private InputActionMap _playerActionMap;
         private InputAction _moveAction;
         private InputAction _lookAction;
-        private InputAction _jumpAction;
         private InputAction _sprintAction;
         private InputAction _interactAction;
         private InputAction _ability1Action;
@@ -23,7 +22,6 @@ namespace Player
         
         private Vector2 _moveInput;
         private Vector2 _lookInput;
-        private bool _jumpPressed;
         private bool _sprintPressed;
         
         public Action<Vector2> OnMoveInput;
@@ -41,7 +39,6 @@ namespace Player
         
         public Vector2 MoveInput => _moveInput;
         public Vector2 LookInput => _lookInput;
-        public bool JumpPressed => _jumpPressed;
         public bool SprintPressed => _sprintPressed;
         
         private void Awake()
@@ -74,7 +71,6 @@ namespace Player
             
             _moveAction = _playerActionMap.FindAction("Move");
             _lookAction = _playerActionMap.FindAction("Look");
-            _jumpAction = _playerActionMap.FindAction("Jump");
             _sprintAction = _playerActionMap.FindAction("Sprint");
             _interactAction = _playerActionMap.FindAction("Interact");
             
@@ -88,12 +84,6 @@ namespace Player
             {
                 _lookAction.performed += OnLook;
                 _lookAction.canceled += OnLook;
-            }
-            
-            if (_jumpAction != null)
-            {
-                _jumpAction.performed += OnJump;
-                _jumpAction.canceled += JumpReleased;
             }
             
             if (_sprintAction != null)
@@ -140,18 +130,6 @@ namespace Player
         {
             _lookInput = context.ReadValue<Vector2>();
             OnLookInput?.Invoke(_lookInput);
-        }
-        
-        private void OnJump(InputAction.CallbackContext context)
-        {
-            _jumpPressed = true;
-            OnJumpPressed?.Invoke();
-        }
-        
-        private void JumpReleased(InputAction.CallbackContext context)
-        {
-            _jumpPressed = false;
-            OnJumpReleased?.Invoke();
         }
         
         private void OnSprint(InputAction.CallbackContext context)

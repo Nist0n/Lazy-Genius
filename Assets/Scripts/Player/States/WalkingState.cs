@@ -13,7 +13,6 @@ namespace Player.States
         
         public void OnEnter()
         {
-            Debug.Log("Enter");
             _player.PlAnimator?.PlayWalkAnimation(_player.InputHandler.MoveInput);
         }
         
@@ -28,10 +27,6 @@ namespace Player.States
                 else if (_player.InputHandler && _player.InputHandler.SprintPressed)
                 {
                     _player.StateMachine.ChangeState(PlayerState.Running);
-                }
-                else if (!_player.Movement.IsGrounded)
-                {
-                    _player.StateMachine.ChangeState(PlayerState.Falling);
                 }
             }
         }

@@ -28,10 +28,6 @@ namespace Player.States
                 {
                     _player.StateMachine.ChangeState(PlayerState.Walking);
                 }
-                else if (!_player.Movement.IsGrounded)
-                {
-                    _player.StateMachine.ChangeState(PlayerState.Falling);
-                }
             }
         }
         

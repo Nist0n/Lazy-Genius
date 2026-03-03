@@ -123,7 +123,6 @@ namespace Player
             _stateMachine.RegisterState(PlayerState.Idle, new IdleState(this));
             _stateMachine.RegisterState(PlayerState.Walking, new WalkingState(this));
             _stateMachine.RegisterState(PlayerState.Running, new RunningState(this));
-            _stateMachine.RegisterState(PlayerState.Falling, new FallingState(this));
             _stateMachine.RegisterState(PlayerState.TakingDamage, new TakingDamageState(this));
             _stateMachine.RegisterState(PlayerState.Dead, new DeadState(this));
 

@@ -35,12 +35,6 @@ namespace Player.States
 
             var velocity = _player.Movement.Velocity;
 
-            if (!_player.Movement.IsGrounded)
-            {
-                _player.StateMachine.ChangeState(PlayerState.Falling);
-                return;
-            }
-
             if (velocity.magnitude < 0.1f)
             {
                 _player.StateMachine.ChangeState(PlayerState.Idle);

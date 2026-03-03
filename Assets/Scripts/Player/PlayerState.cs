@@ -5,7 +5,6 @@ namespace Player
         Idle,
         Walking,
         Running,
-        Falling,
         TakingDamage,
         Dead
     }

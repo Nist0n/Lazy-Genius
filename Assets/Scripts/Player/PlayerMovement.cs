@@ -7,8 +7,6 @@ namespace Player
     {
         [Header("References")]
         [SerializeField] private Rigidbody rb;
-        [SerializeField] private Transform groundCheck;
-        [SerializeField] private LayerMask groundLayer;
         [SerializeField] private AudioSource step;
         
         [Header("Movement Settings")]
@@ -16,21 +14,15 @@ namespace Player
         [SerializeField] private float sprintSpeed = 8f;
         [SerializeField] private float airControlMultiplier = 0.3f;
         
-        [Header("Ground Check Settings")]
-        [SerializeField] private float groundCheckRadius = 0.3f;
-        [SerializeField] private float capsuleHeight = 2f;
-        
         [Header("Camera Reference")]
         [SerializeField] private Transform cameraTransform;
         [SerializeField] private Transform orientation;
         
         private Vector2 _moveInput;
         private bool _sprintInput;
-        
-        private bool _isGrounded;
+
         private bool _isDead = false;
-        
-        public bool IsGrounded => _isGrounded;
+
         public Vector3 Velocity => rb.linearVelocity;
         
         private void Awake()
@@ -38,14 +30,6 @@ namespace Player
             if (!rb) rb = GetComponent<Rigidbody>();
             
             SetupRigidbody();
-            
-            if (!groundCheck)
-            {
-                GameObject groundCheckObj = new GameObject("GroundCheck");
-                groundCheckObj.transform.SetParent(transform);
-                groundCheckObj.transform.localPosition = new Vector3(0, -capsuleHeight + groundCheckRadius, 0);
-                groundCheck = groundCheckObj.transform;
-            }
             
             if (!cameraTransform)
             {
@@ -65,8 +49,6 @@ namespace Player
         
         private void Update()
         {
-            CheckGrounded();
-            
             if (!cameraTransform)
             {
                 Camera mainCam = Camera.main;
@@ -114,7 +96,7 @@ namespace Player
             }
             
             float targetSpeed = moveSpeed;
-            if (_sprintInput && _isGrounded)
+            if (_sprintInput)
             {
                 targetSpeed = sprintSpeed;
             }
@@ -145,22 +127,13 @@ namespace Player
             
             moveDirection.Normalize();
             
-            float controlMultiplier;
-            if (_isGrounded) controlMultiplier = 1f;
-            else controlMultiplier = airControlMultiplier;
             
-            Vector3 targetVelocity = moveDirection * (targetSpeed * controlMultiplier);
+            Vector3 targetVelocity = moveDirection * (targetSpeed);
             targetVelocity.y = rb.linearVelocity.y;
             
             rb.linearVelocity = targetVelocity;
 
             step.enabled = true;
-        }
-        
-        private void CheckGrounded()
-        {
-            Vector3 checkPosition = groundCheck.position;
-            _isGrounded = Physics.CheckSphere(checkPosition, groundCheckRadius, groundLayer);
         }
         
         public void SetMoveSpeed(float speed)
