@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Abstractions.Characters;
 using SaveSystem;
 using TMPro;
 using UnityEngine;
@@ -27,23 +28,18 @@ namespace UI
         
         public Action<string> OnCharacterSelected;
         public Action OnCreateNewCharacter;
+        public Action<string> OnDeleteConfirmed;
+
+        private ICharacterService _characters;
         
-        private void Start()
+        private void Awake()
         {
             SetupUI();
-            RefreshCharacterList();
-            
-            CharacterManager.Instance.OnCharacterCreated += OnCharacterCreatedHandler;
-            CharacterManager.Instance.OnCharacterDeleted += OnCharacterDeletedHandler;
         }
         
         private void OnDestroy()
         {
-            if (CharacterManager.Instance)
-            {
-                CharacterManager.Instance.OnCharacterCreated -= OnCharacterCreatedHandler;
-                CharacterManager.Instance.OnCharacterDeleted -= OnCharacterDeletedHandler;
-            }
+            _characters = null;
         }
         
         private void SetupUI()
@@ -76,8 +72,14 @@ namespace UI
                 Destroy(card);
             }
             _characterCards.Clear();
-            
-            List<CharacterMetadata> characters = CharacterManager.Instance.GetCharacterList();
+
+            if (_characters == null)
+            {
+                ShowEmptyState(true);
+                return;
+            }
+
+            List<CharacterMetadata> characters = _characters.GetCharacterList();
             
             if (characters.Count == 0)
             {
@@ -97,7 +99,6 @@ namespace UI
         {
             if (!characterCardPrefab || !characterListContainer)
             {
-                Debug.LogError("[CharacterSelectionUI] Character card prefab or container not assigned");
                 return;
             }
             
@@ -129,7 +130,6 @@ namespace UI
         
         private void OnCharacterCardSelected(string characterGuid)
         {
-            Debug.Log($"[CharacterSelectionUI] Character selected: {characterGuid}");
             OnCharacterSelected?.Invoke(characterGuid);
         }
         
@@ -152,7 +152,7 @@ namespace UI
         {
             if (!string.IsNullOrEmpty(_characterToDelete))
             {
-                CharacterManager.Instance.DeleteCharacter(_characterToDelete);
+                OnDeleteConfirmed?.Invoke(_characterToDelete);
                 _characterToDelete = null;
             }
             
@@ -176,15 +176,10 @@ namespace UI
         {
             OnCreateNewCharacter?.Invoke();
         }
-        
-        private void OnCharacterCreatedHandler(CharacterData character)
+
+        public void Initialize(ICharacterService characterService)
         {
-            RefreshCharacterList();
-        }
-        
-        private void OnCharacterDeletedHandler(string characterGuid)
-        {
-            RefreshCharacterList();
+            _characters = characterService;
         }
     }
 }

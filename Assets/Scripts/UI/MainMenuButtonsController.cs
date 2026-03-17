@@ -14,12 +14,7 @@ namespace UI
         [SerializeField] private GameObject settingsMenu;
         
         private GameFlowManager _gameFlowManager;
-
-        private void Awake()
-        {
-            _gameFlowManager = GameFlowManager.Instance;
-        }
-
+        
         private void Start()
         {
             SetButtonsTriggers();
@@ -44,6 +39,14 @@ namespace UI
             startGameButton.onClick.AddListener(StartGamePreparation);
             quitGameButton.onClick.AddListener(_gameFlowManager.QuitGame);
             settingsButton.onClick.AddListener(OpenSettings);
+        }
+
+        public void Initialize(GameFlowManager flowManager)
+        {
+            if (flowManager)
+            {
+                _gameFlowManager = flowManager;
+            }
         }
     }
 }

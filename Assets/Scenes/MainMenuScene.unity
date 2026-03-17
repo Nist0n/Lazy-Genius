@@ -1193,6 +1193,55 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &405022354
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 405022356}
+  - component: {fileID: 405022355}
+  m_Layer: 0
+  m_Name: MainMenuSceneEntrypoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &405022355
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 405022354}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b8774174e82a3d4bb33b5113d0e0e2d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Scenes.MainMenu.MainMenuSceneEntrypoint
+  gameFlowManager: {fileID: 370819935}
+  mainMenuButtonsController: {fileID: 918526411}
+  settingsController: {fileID: 7701669420215611107}
+  characterSelectionUI: {fileID: 1585812155}
+  characterCreationUI: {fileID: 978986216}
+--- !u!4 &405022356
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 405022354}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -68.24271, y: -78.82078, z: 178.57666}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &422947963
 GameObject:
   m_ObjectHideFlags: 0
@@ -2792,6 +2841,7 @@ MonoBehaviour:
   quitGameButton: {fileID: 56106843}
   menuButtons: {fileID: 313566736}
   settingsMenu: {fileID: 622820805218088394}
+  gameFlowManager: {fileID: 370819935}
 --- !u!1 &978986214
 GameObject:
   m_ObjectHideFlags: 0
@@ -2858,6 +2908,50 @@ MonoBehaviour:
   errorMessageText: {fileID: 422947964}
   minNameLength: 3
   maxNameLength: 15
+--- !u!1 &1002075299
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1002075301}
+  - component: {fileID: 1002075300}
+  m_Layer: 0
+  m_Name: ProjectEntrypoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1002075300
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1002075299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7568efe9f15f95047a1d37456f5eb187, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Composition.ProjectEntrypoint
+--- !u!4 &1002075301
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1002075299}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -68.24271, y: -78.82078, z: 178.57666}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1090658709
 GameObject:
   m_ObjectHideFlags: 0
@@ -5637,6 +5731,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 6707837126898236351, guid: 0d97a684422b9a345804350d9470d8d5, type: 3}
   m_PrefabInstance: {fileID: 5373629449599410583}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &7701669420215611107 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7255955271892532572, guid: 0d97a684422b9a345804350d9470d8d5, type: 3}
+  m_PrefabInstance: {fileID: 5373629449599410583}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 622820805218088394}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e483e0db036afe54ab761d01ec7293f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UI.Settings.SettingsController
 --- !u!1001 &7934520910995373289
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5707,3 +5812,5 @@ SceneRoots:
   - {fileID: 1208797248}
   - {fileID: 156394485}
   - {fileID: 7934520910995373289}
+  - {fileID: 1002075301}
+  - {fileID: 405022356}

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Abstractions.Characters;
 using Player;
-using SaveSystem;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -29,14 +29,17 @@ namespace UI
         
         private PlayerClass _selectedClass;
         private readonly List<GameObject> _classButtons = new List<GameObject>();
+        private readonly List<PlayerClass> _availableClasses = new List<PlayerClass>();
+
+        private ICharacterService _characters;
         
         public Action OnCharacterCreated;
         public Action OnCancelled;
+        public Action<string, PlayerClass> CreateRequested;
         
-        private void Start()
+        private void Awake()
         {
             SetupUI();
-            PopulateClassSelection();
         }
         
         private void SetupUI()
@@ -67,11 +70,10 @@ namespace UI
             }
         }
         
-        private void PopulateClassSelection()
+        public void SetAvailableClasses(List<PlayerClass> availableClasses)
         {
             if (!classButtonContainer || !classButtonPrefab)
             {
-                Debug.LogError("[CharacterCreationUI] Class button container or prefab not assigned");
                 return;
             }
             
@@ -80,16 +82,16 @@ namespace UI
                 Destroy(button);
             }
             _classButtons.Clear();
-            
-            List<PlayerClass> availableClasses = CharacterManager.Instance.GetAvailableClasses();
-            
-            if (availableClasses.Count == 0)
+
+            _availableClasses.Clear();
+            if (availableClasses != null) _availableClasses.AddRange(availableClasses);
+
+            if (_availableClasses.Count == 0)
             {
-                Debug.LogWarning("[CharacterCreationUI] No available classes found");
                 return;
             }
             
-            foreach (var playerClass in availableClasses)
+            foreach (var playerClass in _availableClasses)
             {
                 GameObject buttonObj = Instantiate(classButtonPrefab, classButtonContainer);
                 Button button = buttonObj.GetComponent<Button>();
@@ -109,9 +111,9 @@ namespace UI
                 }
             }
 
-            if (availableClasses.Count > 0)
+            if (_availableClasses.Count > 0)
             {
-                OnClassSelected(availableClasses[0]);
+                OnClassSelected(_availableClasses[0]);
             }
         }
         
@@ -192,7 +194,7 @@ namespace UI
                 isValid = false;
                 errorMessage = $"Имя не должно превышать {maxNameLength} символов";
             }
-            else if (CharacterManager.Instance.IsCharacterNameTaken(characterName))
+            else if (_characters != null && _characters.IsCharacterNameTaken(characterName))
             {
                 isValid = false;
                 errorMessage = "Это имя уже занято";
@@ -232,18 +234,8 @@ namespace UI
                 ShowError("Выберите класс");
                 return;
             }
-            
-            CharacterData newCharacter = CharacterManager.Instance.CreateCharacter(characterName, _selectedClass);
-            
-            if (newCharacter != null)
-            {
-                Debug.Log($"[CharacterCreationUI] Created character: {characterName}");
-                OnCharacterCreated?.Invoke();
-            }
-            else
-            {
-                ShowError("Не удалось создать персонажа");
-            }
+
+            CreateRequested?.Invoke(characterName, _selectedClass);
         }
         
         private void OnCancelButtonClicked()
@@ -271,8 +263,22 @@ namespace UI
             {
                 errorMessageText.gameObject.SetActive(false);
             }
-            
-            PopulateClassSelection();
+
+            if (_availableClasses.Count > 0)
+            {
+                SetAvailableClasses(new List<PlayerClass>(_availableClasses));
+            }
         }
+
+        public void Initialize(ICharacterService characterService)
+        {
+            _characters = characterService;
+        }
+
+        public void ShowCreateFailed(string message = "Не удалось создать персонажа")
+        {
+            ShowError(message);
+        }
+
     }
 }

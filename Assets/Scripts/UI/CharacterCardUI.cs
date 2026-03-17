@@ -1,5 +1,4 @@
 using System;
-using Audio;
 using SaveSystem;
 using TMPro;
 using UnityEngine;
@@ -95,7 +94,6 @@ namespace UI
         
         private void HandleSelectClicked()
         {
-            AudioManager.Instance.PlaySFX("StartGameClick");
             OnSelectClicked?.Invoke();
         }
         

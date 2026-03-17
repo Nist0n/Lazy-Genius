@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace UI.Settings
 {
@@ -11,81 +12,84 @@ namespace UI.Settings
         [SerializeField] private ButtonApplies graphicsApply;
         [SerializeField] private ButtonApplies bindingsApply;
         
-        private List<ButtonApplies> _buttonApplies = new List<ButtonApplies>();
+        public event Action<ButtonApplies> TabClicked;
+
+        private readonly List<ButtonApplies> _tabs = new List<ButtonApplies>(4);
+        private readonly Dictionary<ButtonApplies, UnityAction> _clickHandlers = new Dictionary<ButtonApplies, UnityAction>(4);
+        
+        public ButtonApplies VolumeApply => volumeApply;
+
+        private bool _isInitialized;
 
         private void OnEnable()
         {
-            Initialize();
+            EnsureInitialized();
+            HookButtons();
         }
 
-        public void Initialize()
+        private void OnDisable()
         {
-            SetupUI();
-            SetupButtonsActions();
-            OnVolumeButtonClicked();
+            UnhookButtons();
         }
 
-        private void SetupButtonsActions()
+        public void EnsureInitialized()
         {
-            otherApply.button.onClick.AddListener(OnOtherButtonClicked);
-            graphicsApply.button.onClick.AddListener(OnGraphicsButtonClicked);
-            volumeApply.button.onClick.AddListener(OnVolumeButtonClicked);
-            bindingsApply.button.onClick.AddListener(OnBindingsButtonClicked);
+            if (_isInitialized) return;
+
+            _tabs.Clear();
+            if (otherApply) _tabs.Add(otherApply);
+            if (graphicsApply) _tabs.Add(graphicsApply);
+            if (bindingsApply) _tabs.Add(bindingsApply);
+            if (volumeApply) _tabs.Add(volumeApply);
+
+            _isInitialized = true;
         }
 
-        private void SetupUI()
+        public void SetActiveTab(ButtonApplies active)
         {
-            _buttonApplies.Add(otherApply);
-            _buttonApplies.Add(graphicsApply);
-            _buttonApplies.Add(bindingsApply);
-            _buttonApplies.Add(volumeApply);
-        }
+            if (!_isInitialized) EnsureInitialized();
 
-        private void OnOtherButtonClicked()
-        {
-            otherApply.ActivateTab();
-            foreach (var apply in _buttonApplies)
+            foreach (var tab in _tabs)
             {
-                if (apply != otherApply)
-                {
-                    apply.DeactivateTab();
-                }
+                if (!tab) continue;
+                if (tab == active) tab.ActivateTab();
+                else tab.DeactivateTab();
             }
         }
-        
-        private void OnVolumeButtonClicked()
+
+        private void HookButtons()
         {
-            volumeApply.ActivateTab();
-            foreach (var apply in _buttonApplies)
-            {
-                if (apply != volumeApply)
-                {
-                    apply.DeactivateTab();
-                }
-            }
+            Hook(otherApply);
+            Hook(graphicsApply);
+            Hook(volumeApply);
+            Hook(bindingsApply);
         }
-        
-        private void OnBindingsButtonClicked()
+
+        private void UnhookButtons()
         {
-            bindingsApply.ActivateTab();
-            foreach (var apply in _buttonApplies)
-            {
-                if (apply != bindingsApply)
-                {
-                    apply.DeactivateTab();
-                }
-            }
+            Unhook(otherApply);
+            Unhook(graphicsApply);
+            Unhook(volumeApply);
+            Unhook(bindingsApply);
         }
-        
-        private void OnGraphicsButtonClicked()
+
+        private void Hook(ButtonApplies apply)
         {
-            graphicsApply.ActivateTab();
-            foreach (var apply in _buttonApplies)
+            if (!apply || !apply.button) return;
+            if (_clickHandlers.ContainsKey(apply)) return;
+
+            UnityAction handler = () => TabClicked?.Invoke(apply);
+            _clickHandlers.Add(apply, handler);
+            apply.button.onClick.AddListener(handler);
+        }
+
+        private void Unhook(ButtonApplies apply)
+        {
+            if (!apply || !apply.button) return;
+            if (_clickHandlers.TryGetValue(apply, out var handler))
             {
-                if (apply != graphicsApply)
-                {
-                    apply.DeactivateTab();
-                }
+                apply.button.onClick.RemoveListener(handler);
+                _clickHandlers.Remove(apply);
             }
         }
     }

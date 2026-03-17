@@ -12,19 +12,19 @@ namespace Game.Input
         {
             if (loadOnAwake)
             {
+                if (!inputActionAsset)
+                {
+                    return;
+                }
+
                 LoadOverrides();
             }
         }
 
-        private void Start()
+        public void Initialize(InputActionAsset asset)
         {
-            if (!inputActionAsset)
-            {
-                 var playerInput = FindAnyObjectByType<PlayerInput>();
-                 if (playerInput) inputActionAsset = playerInput.actions;
-                 
-                 LoadOverrides();
-            }
+            inputActionAsset = asset;
+            LoadOverrides();
         }
 
         public void LoadOverrides()
