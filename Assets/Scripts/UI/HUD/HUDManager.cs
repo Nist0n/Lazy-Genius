@@ -7,8 +7,6 @@ namespace UI.HUD
 {
     public class HUDManager : MonoBehaviour
     {
-        public static HUDManager Instance { get; private set; }
-
         [Header("Components")]
         [SerializeField] private ResourceBarUI healthBar;
         [SerializeField] private ResourceBarUI energyBar;
@@ -22,46 +20,29 @@ namespace UI.HUD
         private Camera _mainCamera;
         
         public CrosshairState CurrentCrosshairState { get; private set; } = CrosshairState.Normal;
-        
-        private void Awake()
-        {
-            if (Instance && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-            Instance = this;
-        }
-
-        private void Start()
-        {
-            _mainCamera = Camera.main;
-            InitializePlayer();
-        }
 
         private void Update()
         {
             UpdateCrosshairRaycast();
         }
 
-        public void InitializePlayer()
+        public void Initialize(HealthSystem playerHealth, Camera camera)
         {
-            GameObject player = GameObject.FindGameObjectWithTag("Player");
-            if (player)
+            if (!playerHealth)
             {
-                _playerHealth = player.GetComponent<HealthSystem>();
-                if (_playerHealth)
-                {
-                    _playerHealth.OnHealthChanged -= OnHealthChanged;
-                    _playerHealth.OnEnergyChanged -= OnEnergyChanged;
-                    
-                    _playerHealth.OnHealthChanged += OnHealthChanged;
-                    _playerHealth.OnEnergyChanged += OnEnergyChanged;
-                    
-                    OnHealthChanged(_playerHealth.GetHealth(), _playerHealth.GetMaxHealth());
-                    OnEnergyChanged(_playerHealth.CurrentEnergy, _playerHealth.MaxEnergy);
-                }
+                return;
             }
+
+            _mainCamera = camera ? camera : Camera.main;
+            _playerHealth = playerHealth;
+
+            _playerHealth.OnHealthChanged -= OnHealthChanged;
+            _playerHealth.OnEnergyChanged -= OnEnergyChanged;
+            _playerHealth.OnHealthChanged += OnHealthChanged;
+            _playerHealth.OnEnergyChanged += OnEnergyChanged;
+
+            OnHealthChanged(_playerHealth.GetHealth(), _playerHealth.GetMaxHealth());
+            OnEnergyChanged(_playerHealth.CurrentEnergy, _playerHealth.MaxEnergy);
         }
         
         private void OnHealthChanged(float current, float max)

@@ -31,27 +31,6 @@ namespace UI.Settings
                 return;
             }
             
-            GameObject player = GameObject.FindGameObjectWithTag("Player");
-            if (player)
-            {
-                _abilitySlotSystem = player.GetComponent<AbilitySlotSystem>();
-                _inputHandler = player.GetComponent<PlayerInputHandler>();
-                
-                if (_inputHandler && !inputActionAsset)
-                {
-                    inputActionAsset = _inputHandler.GetInputActionAsset();
-                }
-            }
-            
-            if (!inputActionAsset)
-            {
-                var inputAsset = FindAnyObjectByType<PlayerInputHandler>();
-                if (inputAsset)
-                {
-                    inputActionAsset = inputAsset.GetInputActionAsset();
-                }
-            }
-            
             if (keyBindingSettings)
             {
                 keyBindingSettings.OnBindingChanged += OnSettingsBindingChanged;
@@ -60,6 +39,12 @@ namespace UI.Settings
         
         private void Start()
         {
+            if (!inputActionAsset)
+            {
+                Debug.LogError("[KeyBindingSettingsManager] Not initialized. Wire it via GameplaySceneEntrypoint.");
+                return;
+            }
+
             LoadSettings();
             LoadBindingOverrides();
             ApplySettings();
@@ -99,6 +84,17 @@ namespace UI.Settings
         {
             ApplySlotBinding(slotIndex);
             OnBindingChanged?.Invoke(slotIndex, actionName);
+        }
+
+        public void Initialize(AbilitySlotSystem abilitySlotSystem, PlayerInputHandler playerInputHandler)
+        {
+            _abilitySlotSystem = abilitySlotSystem;
+            _inputHandler = playerInputHandler;
+
+            if (_inputHandler && !inputActionAsset)
+            {
+                inputActionAsset = _inputHandler.GetInputActionAsset();
+            }
         }
         
         public void ApplySettings()

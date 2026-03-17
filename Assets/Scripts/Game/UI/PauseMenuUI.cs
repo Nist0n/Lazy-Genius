@@ -1,8 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using Game;
-using SaveSystem;
 using UnityEngine.SceneManagement;
+using Abstractions.Characters;
 
 namespace Game.UI
 {
@@ -19,27 +19,13 @@ namespace Game.UI
         [SerializeField] private GameObject settingsPanel;
         
         private PauseManager _pauseManager;
+        private ICharacterService _characters;
         
         private void Start()
         {
-            _pauseManager = PauseManager.Instance;
-            
-            if (!_pauseManager)
+            if (!_pauseManager || _characters == null)
             {
-                Debug.LogError("[PauseMenuUI] PauseManager не найден в сцене!");
                 return;
-            }
-            
-            if (_pauseManager)
-            {
-                var pauseManagerType = typeof(PauseManager);
-                var pauseMenuPanelField = pauseManagerType.GetField("pauseMenuPanel", 
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                
-                if (pauseMenuPanelField != null)
-                {
-                    pauseMenuPanelField.SetValue(_pauseManager, gameObject);
-                }
             }
 
             if (resumeButton)
@@ -70,6 +56,12 @@ namespace Game.UI
             gameObject.SetActive(false);
             if (settingsPanel) settingsPanel.SetActive(false);
         }
+
+        public void Initialize(PauseManager pauseManager, ICharacterService characterService)
+        {
+            _pauseManager = pauseManager;
+            _characters = characterService;
+        }
         
         private void OnDestroy()
         {
@@ -90,13 +82,9 @@ namespace Game.UI
         
         private void OnSaveClicked()
         {
-            if (CharacterManager.Instance)
+            if (_characters.SaveActiveCharacter())
             {
-                if (CharacterManager.Instance.SaveActiveCharacter())
-                {
-                    Debug.Log("[PauseMenuUI] Игра сохранена!");
-                    // TODO: Показать визуальное подтверждение
-                }
+                Debug.Log("Игра сохранена");
             }
         }
         
@@ -127,10 +115,7 @@ namespace Game.UI
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
             
-            if (CharacterManager.Instance)
-            {
-                CharacterManager.Instance.DeselectCharacter();
-            }
+            _characters.DeselectCharacter();
             
             SceneManager.LoadScene("MainMenuScene");
         }

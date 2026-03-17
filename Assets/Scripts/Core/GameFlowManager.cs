@@ -1,10 +1,9 @@
 using System;
-using Audio;
-using SaveSystem;
+using Abstractions.Audio;
+using Abstractions.Characters;
 using UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
 
 namespace Core
 {
@@ -20,35 +19,18 @@ namespace Core
         [Header("Scripts")]
         [SerializeField] private CharacterSelectionUI characterSelectionUI;
         [SerializeField] private CharacterCreationUI characterCreationUI;
-        
-        private static GameFlowManager _instance;
-        
-        public static GameFlowManager Instance
-        {
-            get
-            {
-                if (!_instance)
-                {
-                    _instance = FindAnyObjectByType<GameFlowManager>();
-                }
-                return _instance;
-            }
-        }
-        
-        private void Awake()
-        {
-            if (_instance && _instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-            
-            _instance = this;
-        }
 
+        private IAudioService _audio;
+        private ICharacterService _characters;
+        
         private void Start()
         {
-            AudioManager.Instance.PlayMusic("MenuMusic");
+            if (_audio == null || _characters == null)
+            {
+                return;
+            }
+
+            _audio.PlayMusic("MenuMusic");
         }
 
         private void OnEnable()
@@ -83,19 +65,12 @@ namespace Core
 
         public void StartGamePreparation()
         {
-            if (!SaveManager.Instance)
+            if (_characters == null)
             {
-                Debug.LogError("[GameFlowManager] SaveManager отсутствует");
                 return;
             }
-            
-            if (!CharacterManager.Instance)
-            {
-                Debug.LogError("[GameFlowManager] CharacterManager отсутствует");
-                return;
-            }
-            
-            var characters = CharacterManager.Instance.GetCharacterList();
+
+            var characters = _characters.GetCharacterList();
             
             if (characters.Count == 0)
             {
@@ -132,16 +107,20 @@ namespace Core
                 characterCreationPanel.SetActive(true);
             }
         }
-        
-        public void StartGame(string characterGuid)
+
+        private void StartGame(string characterGuid)
         {
-            if (!CharacterManager.Instance.SelectCharacter(characterGuid))
+            if (_characters == null)
             {
-                Debug.LogError($"[GameFlowManager] Не удалось выбрать персонажа: {characterGuid}");
+                return;
+            }
+
+            if (!_characters.SelectCharacter(characterGuid))
+            {
                 return;
             }
             
-            Debug.Log($"[GameFlowManager] Начало игры с персонажем: {characterGuid}");
+            _audio.PlayMusic("StartGameClick");
             
             LoadGameplayScene();
         }
@@ -153,13 +132,24 @@ namespace Core
         
         public void QuitGame()
         {
-            CharacterManager.Instance.SaveActiveCharacter();
+            if (_characters == null)
+            {
+                return;
+            }
+
+            _characters.SaveActiveCharacter();
             
             #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
             #else
             Application.Quit();
             #endif
+        }
+
+        public void Initialize(IAudioService audioService, ICharacterService characterService)
+        {
+            _audio = audioService;
+            _characters = characterService;
         }
     }
 }
