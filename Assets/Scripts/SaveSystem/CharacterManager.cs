@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Abstractions.Save;
+using Infrastructure.Services;
 using Player;
+using UnityEditor.Overlays;
 using UnityEngine;
 
 namespace SaveSystem
@@ -8,6 +11,7 @@ namespace SaveSystem
     public class CharacterManager : MonoBehaviour
     {
         private static CharacterManager _instance;
+        
         public static CharacterManager Instance
         {
             get
@@ -27,6 +31,7 @@ namespace SaveSystem
         
         private CharacterData _activeCharacter;
         private List<CharacterMetadata> _cachedCharacterList;
+        private ICharacterSaveService _saveManager;
         
         public event Action<CharacterData> OnCharacterCreated;
         public event Action<string> OnCharacterDeleted;
@@ -50,7 +55,7 @@ namespace SaveSystem
                 LoadAvailableClasses();
             }
             
-            SaveManager.Instance.OnIndexUpdated += RefreshCharacterList;
+            _saveManager.IndexUpdated += RefreshCharacterList;
             
             RefreshCharacterList();
         }
@@ -59,7 +64,7 @@ namespace SaveSystem
         {
             if (_instance == this)
             {
-                SaveManager.Instance.OnIndexUpdated -= RefreshCharacterList;
+                _saveManager.IndexUpdated -= RefreshCharacterList;
             }
         }
         
@@ -84,7 +89,7 @@ namespace SaveSystem
             
             InitializeNewCharacter(newCharacter, playerClass);
             
-            if (SaveManager.Instance.SaveCharacter(newCharacter))
+            if (_saveManager.SaveCharacter(newCharacter))
             {
                 OnCharacterCreated?.Invoke(newCharacter);
                 RefreshCharacterList();
@@ -103,7 +108,7 @@ namespace SaveSystem
                 return false;
             }
             
-            CharacterSaveData saveData = SaveManager.Instance.LoadCharacter(characterGuid);
+            CharacterSaveData saveData = _saveManager.LoadCharacter(characterGuid);
             if (saveData == null)
             {
                 return false;
@@ -133,7 +138,7 @@ namespace SaveSystem
                 return false;
             }
             
-            if (SaveManager.Instance.DeleteCharacter(characterGuid))
+            if (_saveManager.DeleteCharacter(characterGuid))
             {
                 OnCharacterDeleted?.Invoke(characterGuid);
                 RefreshCharacterList();
@@ -150,7 +155,7 @@ namespace SaveSystem
                 return false;
             }
             
-            return SaveManager.Instance.SaveCharacter(_activeCharacter);
+            return _saveManager.SaveCharacter(_activeCharacter);
         }
         
         public void DeselectCharacter()
@@ -188,7 +193,7 @@ namespace SaveSystem
         
         private void RefreshCharacterList()
         {
-            _cachedCharacterList = SaveManager.Instance.GetAllCharacters();
+            _cachedCharacterList = _saveManager.GetAllCharacters();
             
             foreach (var metadata in _cachedCharacterList)
             {
@@ -248,6 +253,11 @@ namespace SaveSystem
             {
                 SaveActiveCharacter();
             }
+        }
+
+        public void Initialize(ICharacterSaveService saveManager)
+        {
+            _saveManager = saveManager;
         }
     }
 }

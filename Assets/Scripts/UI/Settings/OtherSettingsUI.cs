@@ -1,3 +1,5 @@
+using Abstractions.Settings;
+using Composition;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -31,7 +33,7 @@ namespace UI.Settings
 
         private void OnSensitivityChanged(float value)
         {
-            GameSettingsManager.Instance.SetMouseSensitivity(value);
+            App.Services.Resolve<IGameSettingsService>().SetMouseSensitivity(value);
             UpdateSensitivityText(value);
         }
 

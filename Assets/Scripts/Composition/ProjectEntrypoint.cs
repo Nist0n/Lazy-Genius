@@ -25,7 +25,6 @@ namespace Composition
             services.Register<IAudioService>(new UnityAudioService());
             services.Register<ICharacterSaveService>(new SaveManagerCharacterSaveService());
             services.Register<ICharacterService>(new CharacterManagerCharacterService());
-            services.Register<IGameSettingsService>(new GameSettingsManagerService());
 
             App.Initialize(services);
         }

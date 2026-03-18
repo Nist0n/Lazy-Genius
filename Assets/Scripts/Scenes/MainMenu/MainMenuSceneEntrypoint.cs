@@ -1,7 +1,10 @@
 using Abstractions.Audio;
 using Abstractions.Characters;
+using Abstractions.Save;
 using Composition;
 using Core;
+using Infrastructure.Services;
+using SaveSystem;
 using UI;
 using UI.Settings;
 using UI.Settings.MVC;
@@ -10,6 +13,7 @@ using UnityEngine;
 
 namespace Scenes.MainMenu
 {
+    [DefaultExecutionOrder(-9999)]
     public sealed class MainMenuSceneEntrypoint : MonoBehaviour
     {
         [Header("Scene Objects")]
@@ -18,6 +22,7 @@ namespace Scenes.MainMenu
         [SerializeField] private SettingsController settingsController;
         [SerializeField] private CharacterSelectionUI characterSelectionUI;
         [SerializeField] private CharacterCreationUI characterCreationUI;
+        [SerializeField] private CharacterManager characterManager;
 
         private SettingsTabsController _settingsTabsController;
         private CharacterSelectionController _characterSelectionController;
@@ -44,8 +49,14 @@ namespace Scenes.MainMenu
 
             var audio = App.Services.Resolve<IAudioService>();
             var characters = App.Services.Resolve<ICharacterService>();
+            var saves = App.Services.Resolve<ICharacterSaveService>();
 
             gameFlowManager.Initialize(audio, characters);
+
+            if (characterManager)
+            {
+                characterManager.Initialize(saves);
+            }
 
             if (mainMenuButtonsController)
             {

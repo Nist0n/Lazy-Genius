@@ -1227,6 +1227,7 @@ MonoBehaviour:
   settingsController: {fileID: 7701669420215611107}
   characterSelectionUI: {fileID: 1585812155}
   characterCreationUI: {fileID: 978986216}
+  characterManager: {fileID: 1208797247}
 --- !u!4 &405022356
 Transform:
   m_ObjectHideFlags: 0
@@ -2841,7 +2842,6 @@ MonoBehaviour:
   quitGameButton: {fileID: 56106843}
   menuButtons: {fileID: 313566736}
   settingsMenu: {fileID: 622820805218088394}
-  gameFlowManager: {fileID: 370819935}
 --- !u!1 &978986214
 GameObject:
   m_ObjectHideFlags: 0

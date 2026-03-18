@@ -41,7 +41,6 @@ namespace UI.Settings
         {
             if (!inputActionAsset)
             {
-                Debug.LogError("[KeyBindingSettingsManager] Not initialized. Wire it via GameplaySceneEntrypoint.");
                 return;
             }
 
