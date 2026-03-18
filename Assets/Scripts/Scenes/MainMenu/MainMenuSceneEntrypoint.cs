@@ -13,7 +13,6 @@ using UnityEngine;
 
 namespace Scenes.MainMenu
 {
-    [DefaultExecutionOrder(-9999)]
     public sealed class MainMenuSceneEntrypoint : MonoBehaviour
     {
         [Header("Scene Objects")]
@@ -53,9 +52,9 @@ namespace Scenes.MainMenu
 
             gameFlowManager.Initialize(audio, characters);
 
-            if (characterManager)
+            if (CharacterManager.Instance)
             {
-                characterManager.Initialize(saves);
+                CharacterManager.Instance.Initialize(saves);
             }
 
             if (mainMenuButtonsController)

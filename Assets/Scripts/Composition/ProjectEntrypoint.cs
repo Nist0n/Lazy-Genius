@@ -1,7 +1,6 @@
 using Abstractions.Audio;
 using Abstractions.Characters;
 using Abstractions.Save;
-using Abstractions.Settings;
 using Infrastructure.Services;
 using UnityEngine;
 

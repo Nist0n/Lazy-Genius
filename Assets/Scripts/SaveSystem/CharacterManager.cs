@@ -49,17 +49,16 @@ namespace SaveSystem
             
             _instance = this;
             DontDestroyOnLoad(gameObject);
+        }
 
+        private void Start()
+        {
             if (availableClasses == null || availableClasses.Count == 0)
             {
                 LoadAvailableClasses();
             }
-            
-            _saveManager.IndexUpdated += RefreshCharacterList;
-            
-            RefreshCharacterList();
         }
-        
+
         private void OnDestroy()
         {
             if (_instance == this)
@@ -258,6 +257,10 @@ namespace SaveSystem
         public void Initialize(ICharacterSaveService saveManager)
         {
             _saveManager = saveManager;
+
+            _saveManager.IndexUpdated += RefreshCharacterList;
+
+            RefreshCharacterList();
         }
     }
 }
