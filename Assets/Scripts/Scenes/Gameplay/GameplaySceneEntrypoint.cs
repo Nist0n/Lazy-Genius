@@ -12,6 +12,7 @@ using UnityEngine;
 
 namespace Scenes.Gameplay
 {
+    [DefaultExecutionOrder(-9999)]
     public sealed class GameplaySceneEntrypoint : MonoBehaviour
     {
         [Header("Scene Objects")]

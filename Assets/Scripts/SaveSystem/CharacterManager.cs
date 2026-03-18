@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Abstractions.Save;
+using Infrastructure.Services;
 using Player;
+using UnityEditor.Overlays;
 using UnityEngine;
 
 namespace SaveSystem
@@ -8,6 +11,7 @@ namespace SaveSystem
     public class CharacterManager : MonoBehaviour
     {
         private static CharacterManager _instance;
+        
         public static CharacterManager Instance
         {
             get
@@ -27,7 +31,9 @@ namespace SaveSystem
         
         private CharacterData _activeCharacter;
         private List<CharacterMetadata> _cachedCharacterList;
-        
+        private ICharacterSaveService _saveManager;
+
+
         public event Action<CharacterData> OnCharacterCreated;
         public event Action<string> OnCharacterDeleted;
         
@@ -36,6 +42,11 @@ namespace SaveSystem
         
         private void Awake()
         {
+            if (availableClasses == null || availableClasses.Count == 0)
+            {
+                LoadAvailableClasses();
+            }
+
             if (_instance && _instance != this)
             {
                 Destroy(gameObject);
@@ -45,21 +56,14 @@ namespace SaveSystem
             _instance = this;
             DontDestroyOnLoad(gameObject);
 
-            if (availableClasses == null || availableClasses.Count == 0)
-            {
-                LoadAvailableClasses();
-            }
             
-            SaveManager.Instance.OnIndexUpdated += RefreshCharacterList;
-            
-            RefreshCharacterList();
         }
-        
+
         private void OnDestroy()
         {
             if (_instance == this)
             {
-                SaveManager.Instance.OnIndexUpdated -= RefreshCharacterList;
+                _saveManager.IndexUpdated -= RefreshCharacterList;
             }
         }
         
@@ -84,7 +88,7 @@ namespace SaveSystem
             
             InitializeNewCharacter(newCharacter, playerClass);
             
-            if (SaveManager.Instance.SaveCharacter(newCharacter))
+            if (_saveManager.SaveCharacter(newCharacter))
             {
                 OnCharacterCreated?.Invoke(newCharacter);
                 RefreshCharacterList();
@@ -103,7 +107,7 @@ namespace SaveSystem
                 return false;
             }
             
-            CharacterSaveData saveData = SaveManager.Instance.LoadCharacter(characterGuid);
+            CharacterSaveData saveData = _saveManager.LoadCharacter(characterGuid);
             if (saveData == null)
             {
                 return false;
@@ -133,7 +137,7 @@ namespace SaveSystem
                 return false;
             }
             
-            if (SaveManager.Instance.DeleteCharacter(characterGuid))
+            if (_saveManager.DeleteCharacter(characterGuid))
             {
                 OnCharacterDeleted?.Invoke(characterGuid);
                 RefreshCharacterList();
@@ -150,7 +154,7 @@ namespace SaveSystem
                 return false;
             }
             
-            return SaveManager.Instance.SaveCharacter(_activeCharacter);
+            return _saveManager.SaveCharacter(_activeCharacter);
         }
         
         public void DeselectCharacter()
@@ -188,11 +192,12 @@ namespace SaveSystem
         
         private void RefreshCharacterList()
         {
-            _cachedCharacterList = SaveManager.Instance.GetAllCharacters();
+            _cachedCharacterList = _saveManager.GetAllCharacters();
             
             foreach (var metadata in _cachedCharacterList)
             {
                 PlayerClass playerClass = FindPlayerClassByName(metadata.className);
+                Debug.Log(metadata.className);
                 if (playerClass)
                 {
                     metadata.classIcon = playerClass.ClassIcon;
@@ -247,6 +252,20 @@ namespace SaveSystem
             if (_activeCharacter != null && Time.frameCount % (60 * 60 * 5) == 0)
             {
                 SaveActiveCharacter();
+            }
+        }
+
+        public void Initialize(ICharacterSaveService saveManager)
+        {
+            _saveManager = saveManager;
+
+            _saveManager.IndexUpdated += RefreshCharacterList;
+
+            RefreshCharacterList();
+
+            if (availableClasses == null || availableClasses.Count == 0)
+            {
+                LoadAvailableClasses();
             }
         }
     }

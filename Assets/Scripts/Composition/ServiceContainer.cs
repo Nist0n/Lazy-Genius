@@ -22,18 +22,6 @@ namespace Composition
 
             throw new InvalidOperationException($"Service not registered: {typeof(T).FullName}");
         }
-
-        public bool TryResolve<T>(out T service) where T : class
-        {
-            if (_services.TryGetValue(typeof(T), out var obj) && obj is T typed)
-            {
-                service = typed;
-                return true;
-            }
-
-            service = null;
-            return false;
-        }
     }
 }
 

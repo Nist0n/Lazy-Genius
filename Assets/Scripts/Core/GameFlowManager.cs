@@ -1,6 +1,7 @@
 using System;
 using Abstractions.Audio;
 using Abstractions.Characters;
+using Infrastructure.Services;
 using UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -120,7 +121,7 @@ namespace Core
                 return;
             }
             
-            _audio.PlayMusic("StartGameClick");
+            _audio.PlaySfx("StartGameClick");
             
             LoadGameplayScene();
         }

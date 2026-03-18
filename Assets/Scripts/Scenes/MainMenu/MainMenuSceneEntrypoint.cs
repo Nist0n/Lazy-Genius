@@ -1,7 +1,10 @@
 using Abstractions.Audio;
 using Abstractions.Characters;
+using Abstractions.Save;
 using Composition;
 using Core;
+using Infrastructure.Services;
+using SaveSystem;
 using UI;
 using UI.Settings;
 using UI.Settings.MVC;
@@ -44,8 +47,14 @@ namespace Scenes.MainMenu
 
             var audio = App.Services.Resolve<IAudioService>();
             var characters = App.Services.Resolve<ICharacterService>();
+            var saves = App.Services.Resolve<ICharacterSaveService>();
 
             gameFlowManager.Initialize(audio, characters);
+
+            if (CharacterManager.Instance)
+            {
+                CharacterManager.Instance.Initialize(saves);
+            }
 
             if (mainMenuButtonsController)
             {
@@ -64,6 +73,7 @@ namespace Scenes.MainMenu
 
             if (characterCreationUI && _characterCreationController == null)
             {
+                Debug.Log(characters);
                 _characterCreationController = new CharacterCreationController(characterCreationUI, characters);
             }
         }
