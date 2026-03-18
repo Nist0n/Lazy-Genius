@@ -21,7 +21,6 @@ namespace Scenes.MainMenu
         [SerializeField] private SettingsController settingsController;
         [SerializeField] private CharacterSelectionUI characterSelectionUI;
         [SerializeField] private CharacterCreationUI characterCreationUI;
-        [SerializeField] private CharacterManager characterManager;
 
         private SettingsTabsController _settingsTabsController;
         private CharacterSelectionController _characterSelectionController;
@@ -74,6 +73,7 @@ namespace Scenes.MainMenu
 
             if (characterCreationUI && _characterCreationController == null)
             {
+                Debug.Log(characters);
                 _characterCreationController = new CharacterCreationController(characterCreationUI, characters);
             }
         }

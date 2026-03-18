@@ -72,6 +72,7 @@ namespace UI
         
         public void SetAvailableClasses(List<PlayerClass> availableClasses)
         {
+            
             if (!classButtonContainer || !classButtonPrefab)
             {
                 return;

@@ -32,7 +32,8 @@ namespace SaveSystem
         private CharacterData _activeCharacter;
         private List<CharacterMetadata> _cachedCharacterList;
         private ICharacterSaveService _saveManager;
-        
+
+
         public event Action<CharacterData> OnCharacterCreated;
         public event Action<string> OnCharacterDeleted;
         
@@ -41,6 +42,11 @@ namespace SaveSystem
         
         private void Awake()
         {
+            if (availableClasses == null || availableClasses.Count == 0)
+            {
+                LoadAvailableClasses();
+            }
+
             if (_instance && _instance != this)
             {
                 Destroy(gameObject);
@@ -49,14 +55,8 @@ namespace SaveSystem
             
             _instance = this;
             DontDestroyOnLoad(gameObject);
-        }
 
-        private void Start()
-        {
-            if (availableClasses == null || availableClasses.Count == 0)
-            {
-                LoadAvailableClasses();
-            }
+            
         }
 
         private void OnDestroy()
@@ -197,6 +197,7 @@ namespace SaveSystem
             foreach (var metadata in _cachedCharacterList)
             {
                 PlayerClass playerClass = FindPlayerClassByName(metadata.className);
+                Debug.Log(metadata.className);
                 if (playerClass)
                 {
                     metadata.classIcon = playerClass.ClassIcon;
@@ -261,6 +262,11 @@ namespace SaveSystem
             _saveManager.IndexUpdated += RefreshCharacterList;
 
             RefreshCharacterList();
+
+            if (availableClasses == null || availableClasses.Count == 0)
+            {
+                LoadAvailableClasses();
+            }
         }
     }
 }
