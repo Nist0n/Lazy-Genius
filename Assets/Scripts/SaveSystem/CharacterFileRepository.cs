@@ -1,128 +1,99 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Abstractions.Save;
 using UnityEngine;
 
 namespace SaveSystem
 {
-    public class SaveManager : MonoBehaviour
+    public sealed class CharacterFileRepository : ICharacterRepository
     {
-        private static SaveManager _instance;
-        public static SaveManager Instance
-        {
-            get
-            {
-                if (!_instance)
-                {
-                    GameObject go = new GameObject("SaveManager");
-                    _instance = go.AddComponent<SaveManager>();
-                    DontDestroyOnLoad(go);
-                }
-                return _instance;
-            }
-        }
-        
+        public event Action IndexUpdated;
+
         private const string SAVE_FOLDER = "Saves";
         private const string CHARACTER_PREFIX = "character_";
         private const string CHARACTER_INDEX = "characters_index.json";
         private const string FILE_EXTENSION = ".json";
-        
-        private string _savePath;
-        private CharacterIndex _characterIndex;
 
-        public event Action OnIndexUpdated;
-        
-        private void Awake()
+        private readonly string _savePath;
+        private CharacterIndexData _characterIndex;
+
+        [Serializable]
+        private class CharacterIndexData
         {
-            if (_instance && _instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-            
-            _instance = this;
-            DontDestroyOnLoad(gameObject);
-            
-            InitializeSaveSystem();
+            public List<CharacterMetadata> characters = new List<CharacterMetadata>();
         }
-        
-        private void InitializeSaveSystem()
+
+        public CharacterFileRepository()
         {
             _savePath = Path.Combine(Application.persistentDataPath, SAVE_FOLDER);
-            
+
             if (!Directory.Exists(_savePath))
             {
                 Directory.CreateDirectory(_savePath);
             }
-            
+
             LoadCharacterIndex();
         }
-        
-        public bool SaveCharacter(CharacterData characterData)
+
+        public bool SaveCharacter(CharacterSaveData saveData, CharacterMetadata metadata)
         {
             try
             {
-                characterData.LastPlayed = DateTime.UtcNow;
-                characterData.UpdatePlaytime();
-                
-                CharacterSaveData saveData = characterData.ToSaveData();
-                saveData.UpdateLastPlayed();
-
                 string json = JsonUtility.ToJson(saveData, true);
 
-                string fileName = GetCharacterFileName(characterData.CharacterGuid);
+                string fileName = GetCharacterFileName(saveData.characterGuid);
                 string filePath = Path.Combine(_savePath, fileName);
                 File.WriteAllText(filePath, json);
 
-                UpdateCharacterInIndex(characterData.GetMetadata());
+                UpdateCharacterInIndex(metadata);
                 SaveCharacterIndex();
-                
+
                 return true;
             }
             catch (Exception e)
             {
-                Debug.LogError($"[SaveManager] Failed to save character: {e.Message}");
+                Debug.LogError($"[CharacterFileRepository] Failed to save character: {e.Message}");
                 return false;
             }
         }
-        
+
         public CharacterSaveData LoadCharacter(string characterGuid)
         {
             try
             {
                 string fileName = GetCharacterFileName(characterGuid);
                 string filePath = Path.Combine(_savePath, fileName);
-                
+
                 if (!File.Exists(filePath))
                 {
                     return null;
                 }
 
                 string json = File.ReadAllText(filePath);
-
                 CharacterSaveData saveData = JsonUtility.FromJson<CharacterSaveData>(json);
-                
+
                 if (saveData == null)
                 {
                     return null;
                 }
-                
+
                 return saveData;
             }
             catch (Exception e)
             {
-                Debug.LogError($"[SaveManager] Failed to load character: {e.Message}");
+                Debug.LogError($"[CharacterFileRepository] Failed to load character: {e.Message}");
                 return null;
             }
         }
-        
+
         public bool DeleteCharacter(string characterGuid)
         {
             try
             {
                 string fileName = GetCharacterFileName(characterGuid);
                 string filePath = Path.Combine(_savePath, fileName);
-                
+
                 if (File.Exists(filePath))
                 {
                     File.Delete(filePath);
@@ -130,50 +101,50 @@ namespace SaveSystem
 
                 RemoveCharacterFromIndex(characterGuid);
                 SaveCharacterIndex();
-                
+
                 return true;
             }
             catch (Exception e)
             {
-                Debug.LogError($"[SaveManager] Failed to delete character: {e.Message}");
+                Debug.LogError($"[CharacterFileRepository] Failed to delete character: {e.Message}");
                 return false;
             }
         }
-        
+
         public List<CharacterMetadata> GetAllCharacters()
         {
             if (_characterIndex != null) return _characterIndex.characters;
-            else return new List<CharacterMetadata>();
+            return new List<CharacterMetadata>();
         }
-        
+
         private void LoadCharacterIndex()
         {
             try
             {
                 string indexPath = Path.Combine(_savePath, CHARACTER_INDEX);
-                
+
                 if (File.Exists(indexPath))
                 {
                     string json = File.ReadAllText(indexPath);
-                    _characterIndex = JsonUtility.FromJson<CharacterIndex>(json);
-                    
+                    _characterIndex = JsonUtility.FromJson<CharacterIndexData>(json);
+
                     if (_characterIndex == null)
                     {
-                        _characterIndex = new CharacterIndex();
+                        _characterIndex = new CharacterIndexData();
                     }
                 }
                 else
                 {
-                    _characterIndex = new CharacterIndex();
+                    _characterIndex = new CharacterIndexData();
                 }
             }
             catch (Exception e)
             {
-                Debug.LogError($"[SaveManager] Failed to load character index: {e.Message}");
-                _characterIndex = new CharacterIndex();
+                Debug.LogError($"[CharacterFileRepository] Failed to load character index: {e.Message}");
+                _characterIndex = new CharacterIndexData();
             }
         }
-        
+
         private void SaveCharacterIndex()
         {
             try
@@ -181,19 +152,19 @@ namespace SaveSystem
                 string indexPath = Path.Combine(_savePath, CHARACTER_INDEX);
                 string json = JsonUtility.ToJson(_characterIndex, true);
                 File.WriteAllText(indexPath, json);
-                
-                OnIndexUpdated?.Invoke();
+
+                IndexUpdated?.Invoke();
             }
             catch (Exception e)
             {
-                Debug.LogError($"[SaveManager] Failed to save character index: {e.Message}");
+                Debug.LogError($"[CharacterFileRepository] Failed to save character index: {e.Message}");
             }
         }
-        
+
         private void UpdateCharacterInIndex(CharacterMetadata metadata)
         {
             int existingIndex = _characterIndex.characters.FindIndex(c => c.characterGuid == metadata.characterGuid);
-            
+
             if (existingIndex >= 0)
             {
                 _characterIndex.characters[existingIndex] = metadata;
@@ -203,21 +174,16 @@ namespace SaveSystem
                 _characterIndex.characters.Add(metadata);
             }
         }
-        
+
         private void RemoveCharacterFromIndex(string characterGuid)
         {
             _characterIndex.characters.RemoveAll(c => c.characterGuid == characterGuid);
         }
-        
+
         private string GetCharacterFileName(string characterGuid)
         {
             return CHARACTER_PREFIX + characterGuid + FILE_EXTENSION;
         }
     }
-    
-    [Serializable]
-    public class CharacterIndex
-    {
-        public List<CharacterMetadata> characters = new List<CharacterMetadata>();
-    }
 }
+

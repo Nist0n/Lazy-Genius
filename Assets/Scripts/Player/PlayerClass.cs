@@ -21,6 +21,11 @@ namespace Player
         public string Description => description;
         public Sprite ClassIcon => classIcon;
         
+        public void InitializeAbilitiesOnly(PlayerController player)
+        {
+            SetupAbilities(player);
+        }
+
         public virtual void Initialize(PlayerController player)
         {
             ApplyStatModifiers(player);

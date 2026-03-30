@@ -33,7 +33,6 @@ namespace SaveSystem
         private List<CharacterMetadata> _cachedCharacterList;
         private ICharacterSaveService _saveManager;
 
-
         public event Action<CharacterData> OnCharacterCreated;
         public event Action<string> OnCharacterDeleted;
         

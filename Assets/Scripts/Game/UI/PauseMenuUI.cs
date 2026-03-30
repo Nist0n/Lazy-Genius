@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using Game;
 using UnityEngine.SceneManagement;
 using Abstractions.Characters;
+using Player;
 
 namespace Game.UI
 {
@@ -82,6 +83,14 @@ namespace Game.UI
         
         private void OnSaveClicked()
         {
+            var loader = FindAnyObjectByType<PlayerCharacterLoader>();
+            if (loader)
+            {
+                loader.SaveCharacterData();
+                Debug.Log("Игра сохранена");
+                return;
+            }
+
             if (_characters.SaveActiveCharacter())
             {
                 Debug.Log("Игра сохранена");

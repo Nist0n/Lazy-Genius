@@ -5,6 +5,7 @@ using Game.Input;
 using Game.UI;
 using Player;
 using Player.UI;
+using SaveSystem;
 using UI.HUD;
 using UI.Settings;
 using UI.Settings.MVC;
@@ -79,10 +80,26 @@ namespace Scenes.Gameplay
                 pauseMenuUi.Initialize(pauseManager, characters);
             }
 
+            TryApplyEnemyPositionsFromSave();
+
             if (settingsController && _settingsTabsController == null)
             {
                 _settingsTabsController = new SettingsTabsController(settingsController);
             }
+        }
+
+        private void TryApplyEnemyPositionsFromSave()
+        {
+            if (!CharacterManager.Instance) return;
+            if (!CharacterManager.Instance.HasActiveCharacter) return;
+
+            var character = CharacterManager.Instance.ActiveCharacter;
+            if (character == null) return;
+            if (!character.HasGameplayState) return;
+            if (character.Enemies == null || character.Enemies.Count == 0) return;
+
+            var applier = new EnemySaveApplier();
+            applier.Apply(character.Enemies);
         }
 
         private void OnDestroy()

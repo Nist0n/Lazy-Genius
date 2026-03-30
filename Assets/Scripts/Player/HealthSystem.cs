@@ -49,6 +49,20 @@ namespace Player
         
         public float GetHealth() => currentHealth;
         public float GetMaxHealth() => maxHealth;
+
+        public void SetState(float newMaxHealth, float newMaxEnergy, float newCurrentHealth, float newCurrentEnergy)
+        {
+            maxHealth = Mathf.Max(0f, newMaxHealth);
+            maxEnergy = Mathf.Max(0f, newMaxEnergy);
+
+            currentHealth = Mathf.Clamp(newCurrentHealth, 0f, maxHealth);
+            currentEnergy = Mathf.Clamp(newCurrentEnergy, 0f, maxEnergy);
+
+            _isDead = currentHealth <= 0f;
+
+            OnHealthChanged?.Invoke(currentHealth, maxHealth);
+            OnEnergyChanged?.Invoke(currentEnergy, maxEnergy);
+        }
         
         private void Awake()
         {
@@ -67,11 +81,24 @@ namespace Player
         
         public void Initialize(float health = -1, float energy = -1)
         {
-            if (health > 0) maxHealth = health;
-            if (energy > 0) maxEnergy = energy;
+            if (health > 0)
+            {
+                currentHealth = health;
+            }
+            else
+            {
+                currentHealth = maxHealth;
+            }
+
+            if (energy > 0)
+            {
+                currentEnergy = energy;
+            }
+            else
+            {
+                currentEnergy = maxEnergy;
+            }
             
-            currentHealth = maxHealth;
-            currentEnergy = maxEnergy;
             _isDead = false;
             
             OnHealthChanged?.Invoke(currentHealth, maxHealth);
