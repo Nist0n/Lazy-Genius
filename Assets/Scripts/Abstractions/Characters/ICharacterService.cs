@@ -9,10 +9,7 @@ namespace Abstractions.Characters
     {
         event Action<CharacterData> CharacterCreated;
         event Action<string> CharacterDeleted;
-
-        CharacterData ActiveCharacter { get; }
-        bool HasActiveCharacter { get; }
-
+        
         CharacterData CreateCharacter(string characterName, PlayerClass playerClass);
         bool SelectCharacter(string characterGuid);
         bool DeleteCharacter(string characterGuid);

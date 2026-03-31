@@ -141,8 +141,43 @@ namespace Player
         {
             if (!newClass) return;
             
+            SetClassInternal(newClass, applyStatModifiers: true);
+        }
+
+        private PlayerClass _lastInitializedClass;
+
+        private void SetClassInternal(PlayerClass newClass, bool applyStatModifiers)
+        {
+            if (!newClass) return;
+            
+            if (_lastInitializedClass == newClass)
+            {
+                currentClass = newClass;
+                return;
+            }
+
             currentClass = newClass;
-            currentClass.Initialize(this);
+            
+            if (applyStatModifiers && baseStats && _healthSystem)
+            {
+                _healthSystem.SetState(
+                    newMaxHealth: baseStats.maxHealth,
+                    newMaxEnergy: baseStats.maxEnergy,
+                    newCurrentHealth: _healthSystem.GetHealth(),
+                    newCurrentEnergy: _healthSystem.CurrentEnergy
+                );
+            }
+
+            if (applyStatModifiers)
+            {
+                currentClass.Initialize(this);
+            }
+            else
+            {
+                currentClass.InitializeAbilitiesOnly(this);
+            }
+
+            _lastInitializedClass = newClass;
         }
         
         private void HandleInput()
@@ -277,13 +312,30 @@ namespace Player
             
             if (characterData.PlayerClass)
             {
-                SetClass(characterData.PlayerClass);
+                SetClassInternal(characterData.PlayerClass, applyStatModifiers: !characterData.HasGameplayState);
             }
             
-            if (_healthSystem)
+            if (!_healthSystem) return;
+            
+            if (characterData.HasGameplayState)
             {
-                _healthSystem.SetMaxHealth(characterData.MaxHealth);
-                _healthSystem.SetMaxEnergy(characterData.MaxEnergy);
+                transform.position = characterData.PlayerPosition;
+                
+                var rb = GetComponent<Rigidbody>();
+                if (rb)
+                {
+                    rb.position = characterData.PlayerPosition;
+                    rb.linearVelocity = Vector3.zero;
+                    rb.angularVelocity = Vector3.zero;
+                }
+
+                _healthSystem.SetState(
+                    newMaxHealth: characterData.MaxHealth,
+                    newMaxEnergy: characterData.MaxEnergy,
+                    newCurrentHealth: characterData.CurrentHealth,
+                    newCurrentEnergy: characterData.CurrentEnergy
+                );
+                return;
             }
         }
         
@@ -301,6 +353,8 @@ namespace Player
                 characterData.CurrentEnergy = _healthSystem.CurrentEnergy;
                 characterData.MaxEnergy = _healthSystem.MaxEnergy;
             }
+
+            characterData.PlayerPosition = transform.position;
         }
         
         private void AimTargetFollow()

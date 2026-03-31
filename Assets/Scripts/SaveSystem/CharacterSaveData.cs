@@ -25,6 +25,11 @@ namespace SaveSystem
         public float maxHealth;
         public float currentEnergy;
         public float maxEnergy;
+
+        [Header("Gameplay State")]
+        public bool hasGameplayState;
+        public Vector3 playerPosition;
+        public List<EnemySaveData> enemies = new List<EnemySaveData>();
         
         public CharacterSaveData()
         {
@@ -36,6 +41,8 @@ namespace SaveSystem
             currentLevel = 1;
             currentExperience = 0;
             experienceToNextLevel = 100;
+
+            hasGameplayState = false;
         }
         
         public void UpdateLastPlayed()

@@ -17,9 +17,6 @@ namespace Infrastructure.Services
             CharacterManager.Instance.OnCharacterDeleted += OnDeleted;
         }
 
-        public CharacterData ActiveCharacter => CharacterManager.Instance.ActiveCharacter;
-        public bool HasActiveCharacter => CharacterManager.Instance.HasActiveCharacter;
-
         public CharacterData CreateCharacter(string characterName, PlayerClass playerClass) =>
             CharacterManager.Instance.CreateCharacter(characterName, playerClass);
 

@@ -22,8 +22,6 @@ namespace UI.Enemy
         private void Awake()
         {
             _mainCamera = Camera.main;
-            Debug.Log(canvas.name);
-            Debug.Log(_mainCamera.name);
         }
 
         private void Start()

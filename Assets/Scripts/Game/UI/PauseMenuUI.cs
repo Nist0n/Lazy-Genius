@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using Game;
 using UnityEngine.SceneManagement;
 using Abstractions.Characters;
+using Player;
 
 namespace Game.UI
 {
@@ -11,12 +12,14 @@ namespace Game.UI
         [Header("UI References")]
         [SerializeField] private Button resumeButton;
         [SerializeField] private Button saveButton;
+        [SerializeField] private Button loadButton;
         [SerializeField] private Button settingsButton;
         [SerializeField] private Button mainMenuButton;
         [SerializeField] private Button quitButton;
         
         [Header("Panels")]
         [SerializeField] private GameObject settingsPanel;
+        [SerializeField] private GameObject selectionPanel;
         
         private PauseManager _pauseManager;
         private ICharacterService _characters;
@@ -53,6 +56,11 @@ namespace Game.UI
                 quitButton.onClick.AddListener(OnQuitClicked);
             }
             
+            if (loadButton)
+            {
+                loadButton.onClick.AddListener(OnLoadClicked);
+            }
+            
             gameObject.SetActive(false);
             if (settingsPanel) settingsPanel.SetActive(false);
         }
@@ -70,6 +78,7 @@ namespace Game.UI
             if (settingsButton) settingsButton.onClick.RemoveListener(OnSettingsClicked);
             if (mainMenuButton) mainMenuButton.onClick.RemoveListener(OnMainMenuClicked);
             if (quitButton) quitButton.onClick.RemoveListener(OnQuitClicked);
+            if (loadButton) loadButton.onClick.RemoveListener(OnLoadClicked);
         }
         
         private void OnResumeClicked()
@@ -82,6 +91,14 @@ namespace Game.UI
         
         private void OnSaveClicked()
         {
+            var loader = FindAnyObjectByType<PlayerCharacterLoader>();
+            if (loader)
+            {
+                loader.SaveCharacterData();
+                Debug.Log("Игра сохранена");
+                return;
+            }
+
             if (_characters.SaveActiveCharacter())
             {
                 Debug.Log("Игра сохранена");
@@ -89,6 +106,7 @@ namespace Game.UI
         }
         
         public bool IsSettingsOpen => settingsPanel && settingsPanel.activeSelf;
+        public bool IsSelectionOpen => selectionPanel && selectionPanel.activeSelf;
 
         private void OnSettingsClicked()
         {
@@ -102,6 +120,12 @@ namespace Game.UI
         public void ReturnFromSettings()
         {
             if (settingsPanel) settingsPanel.SetActive(false);
+            gameObject.SetActive(true);
+        }
+        
+        public void ReturnFromSelection()
+        {
+            if (selectionPanel) selectionPanel.SetActive(false);
             gameObject.SetActive(true);
         }
         
@@ -132,6 +156,15 @@ namespace Game.UI
             #else
                 Application.Quit();
             #endif
+        }
+
+        private void OnLoadClicked()
+        {
+            if (selectionPanel)
+            {
+                selectionPanel.SetActive(true);
+                gameObject.SetActive(false);
+            }
         }
     }
 }

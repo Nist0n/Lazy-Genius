@@ -1,5 +1,6 @@
 using UnityEngine;
 using SaveSystem;
+using System.Collections;
 
 namespace Player
 {
@@ -23,8 +24,14 @@ namespace Player
         {
             if (loadOnStart)
             {
-                LoadCharacterData();
+                StartCoroutine(LoadCharacterDataDelayed());
             }
+        }
+
+        private IEnumerator LoadCharacterDataDelayed()
+        {
+            yield return null;
+            LoadCharacterData();
         }
         
         private void Update()
@@ -82,6 +89,12 @@ namespace Player
             if (_playerController)
             {
                 _playerController.SaveToCharacterData(activeCharacter);
+                
+                activeCharacter.HasGameplayState = true;
+                
+                var enemyCollector = new EnemySaveCollector();
+                activeCharacter.Enemies = enemyCollector.Collect();
+
                 CharacterManager.Instance.SaveActiveCharacter();
             }
         }

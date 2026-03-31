@@ -25,6 +25,11 @@ namespace SaveSystem
         public float MaxHealth { get; set; }
         public float CurrentEnergy { get; set; }
         public float MaxEnergy { get; set; }
+
+        // Gameplay State (saved only after an explicit in-game save)
+        public bool HasGameplayState { get; set; }
+        public Vector3 PlayerPosition { get; set; }
+        public List<EnemySaveData> Enemies { get; set; } = new List<EnemySaveData>();
         
         // Playtime tracking
         private float _sessionStartTime;
@@ -41,6 +46,10 @@ namespace SaveSystem
             CurrentLevel = 1;
             CurrentExperience = 0;
             ExperienceToNextLevel = 100;
+
+            HasGameplayState = false;
+            PlayerPosition = Vector3.zero;
+            Enemies = new List<EnemySaveData>();
         }
         
         public CharacterData(CharacterSaveData saveData, PlayerClass playerClass)
@@ -60,6 +69,10 @@ namespace SaveSystem
             MaxHealth = saveData.maxHealth;
             CurrentEnergy = saveData.currentEnergy;
             MaxEnergy = saveData.maxEnergy;
+
+            HasGameplayState = saveData.hasGameplayState;
+            PlayerPosition = saveData.playerPosition;
+            Enemies = saveData.enemies ?? new List<EnemySaveData>();
         }
         
         public CharacterSaveData ToSaveData()
@@ -81,6 +94,10 @@ namespace SaveSystem
                 maxHealth = MaxHealth,
                 currentEnergy = CurrentEnergy,
                 maxEnergy = MaxEnergy,
+
+                hasGameplayState = HasGameplayState,
+                playerPosition = PlayerPosition,
+                enemies = Enemies ?? new List<EnemySaveData>(),
             };
             
             return saveData;

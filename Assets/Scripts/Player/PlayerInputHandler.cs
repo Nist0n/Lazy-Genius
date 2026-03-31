@@ -26,8 +26,6 @@ namespace Player
         
         public Action<Vector2> OnMoveInput;
         public Action<Vector2> OnLookInput;
-        public Action OnJumpPressed;
-        public Action OnJumpReleased;
         public Action OnSprintPressed;
         public Action OnSprintReleased;
         public Action OnInteractPressed;
