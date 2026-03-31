@@ -4,6 +4,7 @@ using Abstractions.Characters;
 using SaveSystem;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace UI
@@ -135,6 +136,8 @@ namespace UI
         
         private void OnCharacterCardDeleteClicked(string characterGuid, string characterName)
         {
+            if (SceneManager.GetActiveScene().name != "MainMenuScene") return;
+                
             _characterToDelete = characterGuid;
             
             if (deleteConfirmationDialog)

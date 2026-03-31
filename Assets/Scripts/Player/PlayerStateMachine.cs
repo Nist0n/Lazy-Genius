@@ -10,8 +10,6 @@ namespace Player
         private IPlayerState _currentState;
         private PlayerState _currentStateType;
         
-        public PlayerState CurrentStateType => _currentStateType;
-        
         public void RegisterState(PlayerState stateType, IPlayerState state)
         {
             _states[stateType] = state;

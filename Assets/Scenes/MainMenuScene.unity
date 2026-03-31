@@ -1227,7 +1227,6 @@ MonoBehaviour:
   settingsController: {fileID: 7701669420215611107}
   characterSelectionUI: {fileID: 1585812155}
   characterCreationUI: {fileID: 978986216}
-  characterManager: {fileID: 1208797247}
 --- !u!4 &405022356
 Transform:
   m_ObjectHideFlags: 0

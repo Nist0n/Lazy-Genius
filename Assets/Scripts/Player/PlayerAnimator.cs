@@ -26,8 +26,6 @@ namespace Player
             RangedShot
         }
 
-        public Animator RawAnimator => animator;
-
         public void PlayIdleAnimation()
         {
             if (!animator || string.IsNullOrEmpty(idleState))

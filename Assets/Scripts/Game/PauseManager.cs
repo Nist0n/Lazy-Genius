@@ -7,7 +7,6 @@ namespace Game
     public class PauseManager : MonoBehaviour
     {
         [Header("Settings")]
-        [SerializeField] private KeyCode pauseKey = KeyCode.Escape;
         [SerializeField] private bool useInputSystem = true;
         
         [Header("UI")]
@@ -105,6 +104,18 @@ namespace Game
         {
             if (!_isPaused) return;
             
+            if (_pauseMenuUI && _pauseMenuUI.IsSettingsOpen)
+            {
+                _pauseMenuUI.ReturnFromSettings();
+                return;
+            }
+            
+            if (_pauseMenuUI && _pauseMenuUI.IsSelectionOpen)
+            {
+                _pauseMenuUI.ReturnFromSelection();
+                return;
+            }
+            
             _isPaused = false;
             
             Time.timeScale = 1f;
@@ -112,20 +123,10 @@ namespace Game
             Cursor.lockState = _previousLockState;
             Cursor.visible = _previousCursorVisible;
             
-            if (_pauseMenuUI && _pauseMenuUI.IsSettingsOpen)
-            {
-                _pauseMenuUI.ReturnFromSettings();
-            }
-            
             if (pauseMenuPanel)
             {
                 pauseMenuPanel.SetActive(false);
             }
-        }
-        
-        public void SetPauseKey(KeyCode newKey)
-        {
-            pauseKey = newKey;
         }
         
         private void OnDestroy()
