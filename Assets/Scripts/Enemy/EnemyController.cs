@@ -195,11 +195,11 @@ namespace Enemy
             return false;
         }
 
-        public void Attack()
-        {
-            if (enemyConfig.IsRangedEnemy) RangedCombatState.FireProjectile();
-            else AttackState.Attack();
-        }
+        // public void Attack()
+        // {
+        //     if (enemyConfig.IsRangedEnemy) RangedCombatState.FireProjectile();
+        //     else AttackState.Attack();
+        // }
 
         private void GetHit(DamageInfo damageInfo)
         {
