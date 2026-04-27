@@ -91,7 +91,7 @@ namespace Scenes.Gameplay
                 pauseMenuUi.Initialize(pauseManager, characters);
             }
 
-            TryApplyEnemyPositionsFromSave();
+            TryApplyEnemyPositionsFromSave(characters);
 
             if (settingsController && _settingsTabsController == null)
             {
@@ -104,7 +104,7 @@ namespace Scenes.Gameplay
             }
         }
 
-        private void TryApplyEnemyPositionsFromSave()
+        private void TryApplyEnemyPositionsFromSave(ICharacterService characterService)
         {
             if (!CharacterManager.Instance) return;
             if (!CharacterManager.Instance.HasActiveCharacter) return;

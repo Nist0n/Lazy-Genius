@@ -11,7 +11,6 @@ namespace SaveSystem
         public string CharacterGuid { get; private set; }
         public string CharacterName { get; set; }
         public PlayerClass PlayerClass { get; set; }
-        public DateTime CreationDate { get; private set; }
         public DateTime LastPlayed { get; set; }
         public float TotalPlaytime { get; set; }
         
@@ -21,6 +20,7 @@ namespace SaveSystem
         public int ExperienceToNextLevel { get; set; }
         
         // Current State
+        public bool PeacefulModeEnabled { get; set; }
         public float CurrentHealth { get; set; }
         public float MaxHealth { get; set; }
         public float CurrentEnergy { get; set; }
@@ -34,12 +34,12 @@ namespace SaveSystem
         // Playtime tracking
         private float _sessionStartTime;
         
-        public CharacterData(string name, PlayerClass playerClass)
+        public CharacterData(string name, PlayerClass playerClass, bool peacefulModeEnabled)
         {
             CharacterGuid = Guid.NewGuid().ToString();
             CharacterName = name;
             PlayerClass = playerClass;
-            CreationDate = DateTime.UtcNow;
+            PeacefulModeEnabled = peacefulModeEnabled;
             LastPlayed = DateTime.UtcNow;
             TotalPlaytime = 0f;
             
@@ -57,9 +57,9 @@ namespace SaveSystem
             CharacterGuid = saveData.characterGuid;
             CharacterName = saveData.characterName;
             PlayerClass = playerClass;
-            CreationDate = DateTimeOffset.FromUnixTimeSeconds(saveData.creationTimestamp).UtcDateTime;
             LastPlayed = DateTimeOffset.FromUnixTimeSeconds(saveData.lastPlayedTimestamp).UtcDateTime;
             TotalPlaytime = saveData.totalPlaytimeSeconds;
+            PeacefulModeEnabled = saveData.peacefulModeEnabled;
             
             CurrentLevel = saveData.currentLevel;
             CurrentExperience = saveData.currentExperience;
@@ -82,9 +82,9 @@ namespace SaveSystem
                 characterGuid = CharacterGuid,
                 characterName = CharacterName,
                 className = PlayerClass ? PlayerClass.ClassName : "",
-                creationTimestamp = new DateTimeOffset(CreationDate).ToUnixTimeSeconds(),
                 lastPlayedTimestamp = new DateTimeOffset(LastPlayed).ToUnixTimeSeconds(),
                 totalPlaytimeSeconds = TotalPlaytime,
+                peacefulModeEnabled = PeacefulModeEnabled,
                 
                 currentLevel = CurrentLevel,
                 currentExperience = CurrentExperience,
@@ -126,9 +126,9 @@ namespace SaveSystem
                 characterName = CharacterName,
                 className = PlayerClass ? PlayerClass.ClassName : "Unknown",
                 currentLevel = CurrentLevel,
-                creationTimestamp = new DateTimeOffset(CreationDate).ToUnixTimeSeconds(),
                 lastPlayedTimestamp = new DateTimeOffset(LastPlayed).ToUnixTimeSeconds(),
                 totalPlaytimeSeconds = TotalPlaytime,
+                peacefulMode = PeacefulModeEnabled,
                 classIcon = PlayerClass ? PlayerClass.ClassIcon : null
             };
         }

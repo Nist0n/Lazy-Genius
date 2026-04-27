@@ -1,18 +1,19 @@
-using System;
 using UnityEngine;
 using UnityEngine.AI;
 using Core;
 using Enemy.States;
+using SaveSystem;
 
 namespace Enemy
 {
     [RequireComponent(typeof(Rigidbody))]
     [RequireComponent(typeof(NavMeshAgent))]
     [RequireComponent(typeof(EnemyHealth))]
-    public class EnemyController : MonoBehaviour
+    public abstract class EnemyController : MonoBehaviour
     {
         [Header("Configuration")]
         [SerializeField] private EnemyConfig enemyConfig;
+        public EnemyConfig EnemyConfig => enemyConfig;
         
         [Header("Debug Info")]
         [SerializeField] private string currentStateName;
@@ -32,9 +33,22 @@ namespace Enemy
         
         private int _playerSearchCooldown;
         public EnemyChaseState ChaseState { get; private set; }
-        public EnemyAttackState AttackState { get; private set; }
+        public EnemyAttackState AttackState { get; protected set; }
         public EnemyGetHitState GetHitState { get; private set; }
-        public EnemyRangedCombatState RangedCombatState { get; private set; }
+        public EnemyRangedCombatState RangedCombatState { get; protected set; }
+        public EnemyAvoidState AvoidState { get; private set; }
+
+        public bool IsRangedEnemy => RangedCombatState != null;
+        public bool IsPeacefulModeEnabled { get; private set; }
+        public bool ShouldAvoidByLowHealth
+        {
+            get
+            {
+                if (!Health) return false;
+                if (Health.MaxHealth <= 0f) return false;
+                return Health.CurrentHealth <= Health.MaxHealth * 0.25f;
+            }
+        }
 
         private void OnEnable()
         {
@@ -64,6 +78,8 @@ namespace Enemy
             {
                 Agent.speed = enemyConfig.MoveSpeed;
             }
+
+            IsPeacefulModeEnabled = CharacterManager.Instance && CharacterManager.Instance.HasActiveCharacter && CharacterManager.Instance.ActiveCharacter != null && CharacterManager.Instance.ActiveCharacter.PeacefulModeEnabled;
             
             TryFindPlayer();
             StateMachine = new EnemyStateMachine();
@@ -82,16 +98,19 @@ namespace Enemy
         {
             IdleState = new EnemyIdleState(this, StateMachine, enemyConfig);
             ChaseState = new EnemyChaseState(this, StateMachine, enemyConfig);
-            AttackState = new EnemyAttackState(this, StateMachine, enemyConfig);
             DeathState = new EnemyDeathState(this, StateMachine, enemyConfig);
             GetHitState = new EnemyGetHitState(this, StateMachine, enemyConfig);
-
-            if (enemyConfig && enemyConfig.IsRangedEnemy)
-            {
-                RangedCombatState = new EnemyRangedCombatState(this, StateMachine, enemyConfig);
-            }
+            AvoidState = new EnemyAvoidState(this, StateMachine, enemyConfig);
+            
+            CreateCombatStates();
             
             StateMachine.Initialize(IdleState);
+        }
+
+        protected virtual void CreateCombatStates()
+        {
+            AttackState = new EnemyAttackState(this, StateMachine, enemyConfig);
+            RangedCombatState = null;
         }
 
         private void Update()
@@ -195,15 +214,37 @@ namespace Enemy
             return false;
         }
 
-        // public void Attack()
-        // {
-        //     if (enemyConfig.IsRangedEnemy) RangedCombatState.FireProjectile();
-        //     else AttackState.Attack();
-        // }
-
         private void GetHit(DamageInfo damageInfo)
         {
             StateMachine.ChangeState(GetHitState);
+        }
+
+        public virtual EnemyState GetInitialEngageState()
+        {
+            if (IsPeacefulModeEnabled)
+            {
+                if (ShouldAvoidByLowHealth) return AvoidState;
+            }
+            
+            return ChaseState;
+        }
+
+        public virtual EnemyState GetPostHitState(float distanceToPlayer)
+        {
+            if (IsPeacefulModeEnabled)
+            {
+                if (ShouldAvoidByLowHealth) return AvoidState;
+                
+                return IdleState;
+            }
+
+            float attackRange;
+            if (enemyConfig) attackRange = enemyConfig.AttackRange;
+            else attackRange = 4f;
+
+            if (distanceToPlayer > attackRange) return ChaseState;
+            
+            return AttackState;
         }
     }
 }

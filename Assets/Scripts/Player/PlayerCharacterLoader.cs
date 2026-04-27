@@ -14,6 +14,7 @@ namespace Player
         
         private PlayerController _playerController;
         private float _timeSinceLastSave;
+        private bool _skipNextSaveOnDestroy;
         
         private void Awake()
         {
@@ -51,10 +52,21 @@ namespace Player
         
         private void OnDestroy()
         {
+            if (_skipNextSaveOnDestroy)
+            {
+                _skipNextSaveOnDestroy = false;
+                return;
+            }
+
             if (saveOnDestroy)
             {
                 SaveCharacterData();
             }
+        }
+
+        public void SkipNextSaveOnDestroy()
+        {
+            _skipNextSaveOnDestroy = true;
         }
 
         public void LoadCharacterData()

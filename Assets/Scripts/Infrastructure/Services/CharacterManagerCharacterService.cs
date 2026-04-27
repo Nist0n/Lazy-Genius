@@ -17,8 +17,8 @@ namespace Infrastructure.Services
             CharacterManager.Instance.OnCharacterDeleted += OnDeleted;
         }
 
-        public CharacterData CreateCharacter(string characterName, PlayerClass playerClass) =>
-            CharacterManager.Instance.CreateCharacter(characterName, playerClass);
+        public CharacterData CreateCharacter(string characterName, PlayerClass playerClass, bool peacefulModeEnabled) =>
+            CharacterManager.Instance.CreateCharacter(characterName, playerClass, peacefulModeEnabled);
 
         public bool SelectCharacter(string characterGuid) =>
             CharacterManager.Instance.SelectCharacter(characterGuid);

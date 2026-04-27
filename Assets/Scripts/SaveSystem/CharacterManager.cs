@@ -66,7 +66,7 @@ namespace SaveSystem
             }
         }
         
-        public CharacterData CreateCharacter(string characterName, PlayerClass playerClass)
+        public CharacterData CreateCharacter(string characterName, PlayerClass playerClass, bool peacefulModeEnabled)
         {
             if (string.IsNullOrWhiteSpace(characterName))
             {
@@ -83,7 +83,7 @@ namespace SaveSystem
                 return null;
             }
             
-            CharacterData newCharacter = new CharacterData(characterName, playerClass);
+            CharacterData newCharacter = new CharacterData(characterName, playerClass, peacefulModeEnabled);
             
             InitializeNewCharacter(newCharacter, playerClass);
             

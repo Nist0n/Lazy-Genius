@@ -21,20 +21,17 @@ namespace Enemy.States
 
         public override void LogicUpdate()
         {
+            if (controller.IsPeacefulModeEnabled && controller.ShouldAvoidByLowHealth && controller.PlayerTransform)
+            {
+                stateMachine.ChangeState(controller.AvoidState);
+                return;
+            }
+
             if (controller.PlayerTransform)
             {
                 if (controller.CanSeePlayer())
                 {
-                    // Для обычных врагов — преследование в ближнем бою,
-                    // для дальнобойных — сразу переходим в состояние поддержания дистанции.
-                    if (config && config.IsRangedEnemy && controller.RangedCombatState != null)
-                    {
-                        stateMachine.ChangeState(controller.RangedCombatState);
-                    }
-                    else
-                    {
-                        stateMachine.ChangeState(controller.ChaseState);
-                    }
+                    stateMachine.ChangeState(controller.GetInitialEngageState());
                 }
             }
         }
