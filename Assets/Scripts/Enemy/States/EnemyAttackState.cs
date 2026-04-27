@@ -45,7 +45,7 @@ namespace Enemy.States
             }
         }
 
-        public void Attack()
+        private void Attack()
         {
             float distance = Vector3.Distance(controller.transform.position, controller.PlayerTransform.position);
             
@@ -74,6 +74,14 @@ namespace Enemy.States
         {
             try
             {
+                while (_animTimer <= 0.5f)
+                {
+                    _animTimer += Time.deltaTime;
+                    await Task.Yield();
+                }
+                
+                Attack();
+                
                 while (_animTimer <= 2)
                 {
                     _animTimer += Time.deltaTime;

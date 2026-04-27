@@ -27,6 +27,7 @@ namespace SaveSystem
         public float maxEnergy;
 
         [Header("Gameplay State")]
+        public bool peacefulModeEnabled;
         public bool hasGameplayState;
         public Vector3 playerPosition;
         public List<EnemySaveData> enemies = new List<EnemySaveData>();
@@ -42,6 +43,7 @@ namespace SaveSystem
             currentExperience = 0;
             experienceToNextLevel = 100;
 
+            peacefulModeEnabled = false;
             hasGameplayState = false;
         }
         

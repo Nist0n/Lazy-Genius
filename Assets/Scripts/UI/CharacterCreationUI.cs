@@ -27,6 +27,9 @@ namespace UI
         [SerializeField] private int minNameLength = 3;
         [SerializeField] private int maxNameLength = 20;
         
+        [Header("Game Mode")]
+        [SerializeField] private Toggle peacefulModeToggle;
+        
         private PlayerClass _selectedClass;
         private readonly List<GameObject> _classButtons = new List<GameObject>();
         private readonly List<PlayerClass> _availableClasses = new List<PlayerClass>();
@@ -35,7 +38,7 @@ namespace UI
         
         public Action OnCharacterCreated;
         public Action OnCancelled;
-        public Action<string, PlayerClass> CreateRequested;
+        public Action<string, PlayerClass, bool> CreateRequested;
         
         private void Awake()
         {
@@ -236,7 +239,8 @@ namespace UI
                 return;
             }
 
-            CreateRequested?.Invoke(characterName, _selectedClass);
+            bool peacefulModeEnabled = peacefulModeToggle && peacefulModeToggle.isOn;
+            CreateRequested?.Invoke(characterName, _selectedClass, peacefulModeEnabled);
         }
         
         private void OnCancelButtonClicked()
@@ -263,6 +267,11 @@ namespace UI
             if (errorMessageText)
             {
                 errorMessageText.gameObject.SetActive(false);
+            }
+
+            if (peacefulModeToggle)
+            {
+                peacefulModeToggle.isOn = false;
             }
 
             if (_availableClasses.Count > 0)

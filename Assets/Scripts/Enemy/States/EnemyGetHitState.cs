@@ -20,22 +20,14 @@ namespace Enemy.States
         {
             if (Time.time >= _lastHitTime + config.GetHitCooldown)
             {
-                float distance = Vector3.Distance(controller.transform.position, controller.PlayerTransform.position);
-                
-                if (config && config.IsRangedEnemy && controller.RangedCombatState != null)
+                if (!controller.PlayerTransform)
                 {
-                    stateMachine.ChangeState(controller.RangedCombatState);
+                    stateMachine.ChangeState(controller.IdleState);
                     return;
                 }
 
-                if (distance > config.AttackRange)
-                {
-                    stateMachine.ChangeState(controller.ChaseState);
-                }
-                else
-                {
-                    stateMachine.ChangeState(controller.AttackState);
-                }
+                float distance = Vector3.Distance(controller.transform.position, controller.PlayerTransform.position);
+                stateMachine.ChangeState(controller.GetPostHitState(distance));
             }
         }
     }

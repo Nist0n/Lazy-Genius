@@ -136,7 +136,7 @@ namespace Enemy.States
             StartAttack();
         }
 
-        public void FireProjectile()
+        private void FireProjectile()
         {
             try
             {
@@ -170,6 +170,14 @@ namespace Enemy.States
         {
             try
             {
+                while (_animTimer <= 0.5f)
+                {
+                    _animTimer += Time.deltaTime;
+                    await Task.Yield();
+                }
+                
+                FireProjectile();
+                
                 while (_animTimer <= 2)
                 {
                     _animTimer += Time.deltaTime;

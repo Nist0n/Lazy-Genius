@@ -33,9 +33,6 @@ namespace Enemy
         public float FieldOfView = 110f;
 
         [Header("Ranged Enemy Settings")]
-        [Tooltip("Является ли враг дальнего боя")]
-        public bool IsRangedEnemy = false;
-
         [Tooltip("Минимальная желаемая дистанция до игрока для стрельбы")]
         public float PreferredMinDistance = 15f;
 

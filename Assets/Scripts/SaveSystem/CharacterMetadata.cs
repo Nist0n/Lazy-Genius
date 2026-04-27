@@ -10,9 +10,9 @@ namespace SaveSystem
         public string characterName;
         public string className;
         public int currentLevel;
-        public long creationTimestamp;
         public long lastPlayedTimestamp;
         public float totalPlaytimeSeconds;
+        public bool peacefulMode;
         
         [NonSerialized] public Sprite classIcon;
         
@@ -24,18 +24,12 @@ namespace SaveSystem
                 characterName = saveData.characterName,
                 className = saveData.className,
                 currentLevel = saveData.currentLevel,
-                creationTimestamp = saveData.creationTimestamp,
                 lastPlayedTimestamp = saveData.lastPlayedTimestamp,
-                totalPlaytimeSeconds = saveData.totalPlaytimeSeconds
+                totalPlaytimeSeconds = saveData.totalPlaytimeSeconds,
+                peacefulMode = saveData.peacefulModeEnabled
             };
         }
-        
-        public string GetCreationDate()
-        {
-            DateTime dateTime = DateTimeOffset.FromUnixTimeSeconds(creationTimestamp).LocalDateTime;
-            return dateTime.ToString("dd.MM.yyyy");
-        }
-        
+
         public string GetLastPlayedDate()
         {
             DateTime dateTime = DateTimeOffset.FromUnixTimeSeconds(lastPlayedTimestamp).LocalDateTime;

@@ -36,9 +36,9 @@ namespace UI.MainMenu.MVC
             _view.CreateRequested -= OnCreateRequested;
         }
 
-        private void OnCreateRequested(string name, PlayerClass playerClass)
+        private void OnCreateRequested(string name, PlayerClass playerClass, bool peacefulModeEnabled)
         {
-            var created = _characters.CreateCharacter(name, playerClass);
+            var created = _characters.CreateCharacter(name, playerClass, peacefulModeEnabled);
             if (created != null)
             {
                 _view.OnCharacterCreated?.Invoke();

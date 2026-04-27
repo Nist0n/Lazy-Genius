@@ -1,5 +1,6 @@
 using System;
 using SaveSystem;
+using Player;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -39,12 +40,30 @@ namespace Game.UI
         private void OnLobbyButtonClicked()
         {
             PauseManager.Instance.ResumeGame();
-            
+
+            var playerLoader = FindAnyObjectByType<PlayerCharacterLoader>();
+            if (playerLoader)
+            {
+                playerLoader.SkipNextSaveOnDestroy();
+            }
+
             if (CharacterManager.Instance)
             {
-                CharacterManager.Instance.SaveActiveCharacter();
+                CharacterData activeCharacter = CharacterManager.Instance.ActiveCharacter;
+                if (activeCharacter != null)
+                {
+                    activeCharacter.HasGameplayState = false;
+                    activeCharacter.Enemies?.Clear();
+                    activeCharacter.PlayerPosition = Vector3.zero;
+
+                    if (activeCharacter.MaxHealth <= 0f) activeCharacter.MaxHealth = 100f;
+                    if (activeCharacter.MaxEnergy <= 0f) activeCharacter.MaxEnergy = 100f;
+
+                    activeCharacter.CurrentHealth = activeCharacter.MaxHealth;
+                    activeCharacter.CurrentEnergy = activeCharacter.MaxEnergy;
+                }
             }
-            
+
             SceneManager.LoadScene(gameplaySceneName);
         }
     }

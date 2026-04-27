@@ -670,8 +670,8 @@ GameObject:
   - component: {fileID: 1824680906261038603}
   - component: {fileID: 5664497371178983225}
   - component: {fileID: 7319024310995695538}
-  - component: {fileID: 238350391095396502}
   - component: {fileID: 3540853150286708726}
+  - component: {fileID: 4637526271838431058}
   m_Layer: 6
   m_Name: Ranged
   m_TagString: Enemy
@@ -772,7 +772,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 80
   m_CollisionDetection: 0
 --- !u!195 &5664497371178983225
 NavMeshAgent:
@@ -811,22 +811,6 @@ MonoBehaviour:
   currentHealth: 100
   maxHealth: 100
   deathAnimationDuration: 2
---- !u!114 &238350391095396502
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2908017187989157360}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3317041fb04767b4f8938666739510ad, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Enemy.EnemyController
-  enemyConfig: {fileID: 11400000, guid: 7f081f88275bac14590c7ebae0882079, type: 2}
-  currentStateName: 
-  SoundSource: {fileID: 3540853150286708726}
-  StepsSource: {fileID: 1519880962716668743}
 --- !u!82 &3540853150286708726
 AudioSource:
   m_ObjectHideFlags: 0
@@ -924,6 +908,22 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &4637526271838431058
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2908017187989157360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd3a56e296943554faa7d032385e9d03, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Enemy.EnemyRangedController
+  enemyConfig: {fileID: 11400000, guid: 7f081f88275bac14590c7ebae0882079, type: 2}
+  currentStateName: 
+  SoundSource: {fileID: 3540853150286708726}
+  StepsSource: {fileID: 1519880962716668743}
 --- !u!1 &3006748163066882550
 GameObject:
   m_ObjectHideFlags: 0

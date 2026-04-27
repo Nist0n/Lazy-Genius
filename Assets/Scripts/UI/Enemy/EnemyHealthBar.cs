@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using Enemy;
+using Enemy.Boss;
 
 namespace UI.Enemy
 {
@@ -18,6 +19,7 @@ namespace UI.Enemy
         private bool _isHovered;
         private float _lastDamageTime;
         private EnemyHealth _targetHealth;
+        private BossController _bossController;
 
         private void Awake()
         {
@@ -33,6 +35,17 @@ namespace UI.Enemy
             {
                 _targetHealth.OnHealthChanged += OnHealthChanged;
                 UpdateHealthBar(_targetHealth.CurrentHealth, _targetHealth.MaxHealth);
+            }
+            else
+            {
+                _bossController = GetComponentInParent<BossController>();
+                
+                if (_bossController)
+                {
+                    Debug.Log(_bossController);
+                    _bossController.OnHealthChanged += OnHealthChanged;
+                    UpdateHealthBar(_bossController.GetHealth(), _bossController.GetMaxHealth());
+                }
             }
         }
         
@@ -50,6 +63,11 @@ namespace UI.Enemy
             {
                 UpdateHealthBar(currentHealth, _targetHealth.MaxHealth);
             }
+
+            if (_bossController)
+            {
+                UpdateHealthBar(currentHealth, _bossController.GetMaxHealth());
+            }
         }
         
         public void UpdateHealthBar(float current, float max)
@@ -58,11 +76,6 @@ namespace UI.Enemy
             {
                 healthFillImage.fillAmount = current / max;
             }
-        }
-        
-        public void SetHealth(float current, float max)
-        {
-             UpdateHealthBar(current, max);
         }
         
         public void OnDamageTaken()
@@ -107,6 +120,12 @@ namespace UI.Enemy
                 {
                     UpdateHealthBar(_targetHealth.CurrentHealth, _targetHealth.MaxHealth);
                 }
+                
+                if (!canvas.enabled && _bossController)
+                {
+                    UpdateHealthBar(_bossController.GetHealth(), _bossController.GetMaxHealth());
+                }
+                
                 canvas.enabled = true;
             }
         }
@@ -136,6 +155,11 @@ namespace UI.Enemy
             if (_targetHealth)
             {
                 _targetHealth.OnHealthChanged -= OnHealthChanged;
+            }
+
+            if (_bossController)
+            {
+                _bossController.OnHealthChanged -= OnHealthChanged;
             }
         }
     }

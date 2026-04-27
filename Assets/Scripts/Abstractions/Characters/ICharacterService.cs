@@ -10,7 +10,7 @@ namespace Abstractions.Characters
         event Action<CharacterData> CharacterCreated;
         event Action<string> CharacterDeleted;
         
-        CharacterData CreateCharacter(string characterName, PlayerClass playerClass);
+        CharacterData CreateCharacter(string characterName, PlayerClass playerClass, bool peacefulModeEnabled);
         bool SelectCharacter(string characterGuid);
         bool DeleteCharacter(string characterGuid);
         bool SaveActiveCharacter();

@@ -15,6 +15,7 @@ namespace UI
         [SerializeField] private TextMeshProUGUI lastPlayedText;
         [SerializeField] private TextMeshProUGUI playtimeText;
         [SerializeField] private Image classIconImage;
+        [SerializeField] private Image gameModeImage;
         [SerializeField] private Button selectButton;
         [SerializeField] private Button deleteButton;
         
@@ -90,6 +91,9 @@ namespace UI
             {
                 classIconImage.gameObject.SetActive(false);
             }
+
+            if (gameModeImage && _metadata.peacefulMode) gameModeImage.color = Color.green;
+            else if (gameModeImage) gameModeImage.color = Color.red;
         }
         
         private void HandleSelectClicked()
