@@ -37,8 +37,6 @@ namespace Enemy
         public EnemyGetHitState GetHitState { get; private set; }
         public EnemyRangedCombatState RangedCombatState { get; protected set; }
         public EnemyAvoidState AvoidState { get; private set; }
-
-        public bool IsRangedEnemy => RangedCombatState != null;
         public bool IsPeacefulModeEnabled { get; private set; }
         public bool ShouldAvoidByLowHealth
         {
