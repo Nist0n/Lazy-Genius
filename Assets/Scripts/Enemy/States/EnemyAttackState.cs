@@ -17,7 +17,7 @@ namespace Enemy.States
 
         public override void Enter()
         {
-            _lastAttackTime = Time.time - config.AttackCooldown;
+            _lastAttackTime = Time.time - controller.EffectiveAttackCooldown;
             _animTimer = 0;
         }
 
@@ -37,9 +37,9 @@ namespace Enemy.States
                 controller.transform.rotation = Quaternion.Slerp(controller.transform.rotation, lookRotation, Time.deltaTime * 5f);
             }
 
-            if (Time.time >= _lastAttackTime + config.AttackCooldown)
+            if (Time.time >= _lastAttackTime + controller.EffectiveAttackCooldown)
             {
-                controller.Anim.Play("Attack");
+                controller.Anim.Play(controller.AttackAnimState);
                 _lastAttackTime = Time.time;
                 StartAttack();
             }
@@ -59,14 +59,14 @@ namespace Enemy.States
             if (damageable != null)
             {
                 DamageInfo info = new DamageInfo(
-                    config.AttackDamage,
+                    controller.EffectiveAttackDamage,
                     DamageSourceType.Generic,
                     controller.gameObject,
                     controller.PlayerTransform.position,
                     Vector3.zero
                 );
                 
-                damageable.TakeDamage(config.AttackDamage, info);
+                damageable.TakeDamage(controller.EffectiveAttackDamage, info);
             }
         }
 
