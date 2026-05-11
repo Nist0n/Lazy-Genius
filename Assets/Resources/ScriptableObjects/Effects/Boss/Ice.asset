@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 495668a6bd1cc0845b07575b86488cd5, type: 3}
   m_Name: Ice
   m_EditorClassIdentifier: Assembly-CSharp::Enemy.Boss.BossElementProfile
-  elementColor: {r: 1, g: 1, b: 1, a: 1}
+  elementColor: {r: 0, g: 0.9372549, b: 1, a: 1}
   basicProjectilePrefab: {fileID: 0}
   suppressiveProjectilePrefab: {fileID: 0}
-  projectileFollowParticlePrefab: {fileID: 0}
+  projectileFollowParticlePrefab: {fileID: 1919175310698090109, guid: 77f9075e8afbf914e88af72462fc9b37, type: 3}

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 495668a6bd1cc0845b07575b86488cd5, type: 3}
   m_Name: Earth
   m_EditorClassIdentifier: Assembly-CSharp::Enemy.Boss.BossElementProfile
-  elementColor: {r: 1, g: 1, b: 1, a: 1}
+  elementColor: {r: 0.34901962, g: 0.16862746, b: 0, a: 1}
   basicProjectilePrefab: {fileID: 0}
   suppressiveProjectilePrefab: {fileID: 0}
-  projectileFollowParticlePrefab: {fileID: 0}
+  projectileFollowParticlePrefab: {fileID: 5412833706730481491, guid: cf830271eb0188e409c246775c6d7b88, type: 3}

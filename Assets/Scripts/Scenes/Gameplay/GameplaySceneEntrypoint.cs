@@ -7,7 +7,6 @@ using Game.Input;
 using Game.UI;
 using Player;
 using Player.UI;
-using SaveSystem;
 using UI;
 using UI.HUD;
 using UI.MainMenu.MVC;
@@ -31,6 +30,7 @@ namespace Scenes.Gameplay
         [SerializeField] private PauseMenuUI pauseMenuUi;
         [SerializeField] private CharacterSelectionUI characterSelectionUI;
         [SerializeField] private SettingsController settingsController;
+        [SerializeField] private EnemyRuntimeSpawner enemyRuntimeSpawner;
 
         private SettingsTabsController _settingsTabsController;
         private CharacterSelectionController _characterSelectionController;
@@ -91,7 +91,7 @@ namespace Scenes.Gameplay
                 pauseMenuUi.Initialize(pauseManager, characters);
             }
 
-            TryApplyEnemyPositionsFromSave(characters);
+            enemyRuntimeSpawner?.TrySpawnFromActiveCharacter();
 
             if (settingsController && _settingsTabsController == null)
             {
@@ -102,20 +102,6 @@ namespace Scenes.Gameplay
             {
                 _characterSelectionController = new CharacterSelectionController(characterSelectionUI, characters);
             }
-        }
-
-        private void TryApplyEnemyPositionsFromSave(ICharacterService characterService)
-        {
-            if (!CharacterManager.Instance) return;
-            if (!CharacterManager.Instance.HasActiveCharacter) return;
-
-            var character = CharacterManager.Instance.ActiveCharacter;
-            if (character == null) return;
-            if (!character.HasGameplayState) return;
-            if (character.Enemies == null || character.Enemies.Count == 0) return;
-
-            var applier = new EnemySaveApplier();
-            applier.Apply(character.Enemies);
         }
 
         private void OnDestroy()
