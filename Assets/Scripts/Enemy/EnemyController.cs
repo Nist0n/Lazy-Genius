@@ -25,20 +25,65 @@ namespace Enemy
         public EnemyHealth Health { get; private set; }
         public Animator Anim { get; private set; } // Optional
         public Transform PlayerTransform { get; private set; }
-        
+
+        [Header("Combat Runtime Overrides")]
+        [SerializeField] private string defaultAttackAnimState = "Attack";
+        [SerializeField] private string defaultChaseAnimState = "Chase";
+        private string _attackAnimState;
+        private string _chaseAnimState;
+        private float _damageMultiplier = 1f;
+        private float _attackSpeedMultiplier = 1f;
+
+        public float EffectiveAttackDamage
+        {
+            get
+            {
+                float baseDamage;
+                if (enemyConfig) baseDamage = enemyConfig.AttackDamage;
+                else baseDamage = 10f;
+                
+                return baseDamage * Mathf.Max(0f, _damageMultiplier);
+            }
+        }
+
+        public float EffectiveAttackCooldown
+        {
+            get
+            {
+                float baseCooldown;
+                if (enemyConfig) baseCooldown = enemyConfig.AttackCooldown;
+                else baseCooldown = 1f;
+                
+                float speed = Mathf.Max(0.0001f, _attackSpeedMultiplier);
+                
+                return baseCooldown / speed;
+            }
+        }
+
+        public float EffectiveProjectileDamage
+        {
+            get
+            {
+                if (!enemyConfig) return EffectiveAttackDamage;
+                
+                float baseDamage;
+                if (enemyConfig.ProjectileDamage > 0f) baseDamage = enemyConfig.ProjectileDamage;
+                else baseDamage = enemyConfig.AttackDamage;
+                
+                return baseDamage * Mathf.Max(0f, _damageMultiplier);
+            }
+        }
+
+        public string AttackAnimState => string.IsNullOrWhiteSpace(_attackAnimState) ? defaultAttackAnimState : _attackAnimState;
+        public string ChaseAnimState => string.IsNullOrWhiteSpace(_chaseAnimState) ? defaultChaseAnimState : _chaseAnimState;
         public EnemyStateMachine StateMachine { get; private set; }
-        
         public EnemyIdleState IdleState { get; private set; }
         public EnemyDeathState DeathState { get; private set; }
-        
-        private int _playerSearchCooldown;
         public EnemyChaseState ChaseState { get; private set; }
         public EnemyAttackState AttackState { get; protected set; }
         public EnemyGetHitState GetHitState { get; private set; }
         public EnemyRangedCombatState RangedCombatState { get; protected set; }
         public EnemyAvoidState AvoidState { get; private set; }
-
-        public bool IsRangedEnemy => RangedCombatState != null;
         public bool IsPeacefulModeEnabled { get; private set; }
         public bool ShouldAvoidByLowHealth
         {
@@ -49,6 +94,8 @@ namespace Enemy
                 return Health.CurrentHealth <= Health.MaxHealth * 0.25f;
             }
         }
+        
+        private int _playerSearchCooldown;
 
         private void OnEnable()
         {
@@ -67,6 +114,9 @@ namespace Enemy
             Agent = GetComponent<NavMeshAgent>();
             Anim = GetComponentInChildren<Animator>();
 
+            _attackAnimState = defaultAttackAnimState;
+            _chaseAnimState = defaultChaseAnimState;
+
             StepsSource.enabled = false;
 
             float maxHp;
@@ -84,15 +134,6 @@ namespace Enemy
             TryFindPlayer();
             StateMachine = new EnemyStateMachine();
         }
-        
-        private void TryFindPlayer()
-        {
-            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
-            if (playerObj)
-            {
-                PlayerTransform = playerObj.transform;
-            }
-        }
 
         private void Start()
         {
@@ -105,6 +146,31 @@ namespace Enemy
             CreateCombatStates();
             
             StateMachine.Initialize(IdleState);
+        }
+        
+        public void ResetCombatOverrides()
+        {
+            _damageMultiplier = 1f;
+            _attackSpeedMultiplier = 1f;
+            _attackAnimState = defaultAttackAnimState;
+            _chaseAnimState = defaultChaseAnimState;
+        }
+        
+        private void TryFindPlayer()
+        {
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj)
+            {
+                PlayerTransform = playerObj.transform;
+            }
+        }
+
+        public void ApplyCombatOverrides(float damageMultiplier, float attackSpeedMultiplier, string attackAnimState, string chaseAnimState)
+        {
+            _damageMultiplier = Mathf.Max(0f, damageMultiplier);
+            _attackSpeedMultiplier = Mathf.Max(0.0001f, attackSpeedMultiplier);
+            _attackAnimState = attackAnimState;
+            _chaseAnimState = chaseAnimState;
         }
 
         protected virtual void CreateCombatStates()

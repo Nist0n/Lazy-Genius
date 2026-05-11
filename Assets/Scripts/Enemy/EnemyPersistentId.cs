@@ -8,6 +8,11 @@ namespace Enemy
         [SerializeField] private string id;
         public string Id => id;
 
+        public void SetId(string newId)
+        {
+            id = string.IsNullOrWhiteSpace(newId) ? Guid.NewGuid().ToString("N") : newId;
+        }
+
         private void OnValidate()
         {
             if (string.IsNullOrWhiteSpace(id))

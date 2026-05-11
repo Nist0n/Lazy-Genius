@@ -14,7 +14,7 @@ namespace Enemy.Boss.States
         public override void Enter()
         {
             controller.SetMovementEnabled(false);
-            controller.PlayAnimation("Attack");
+            controller.PlayBossBasicAttackAnimation();
             _attackRoutine = controller.StartCoroutine(AttackRoutine());
         }
 
@@ -41,9 +41,6 @@ namespace Enemy.Boss.States
             int minShots = Mathf.Max(1, config.BasicShotCountRange.x);
             int maxShots = Mathf.Max(minShots, config.BasicShotCountRange.y);
             int shotCount = Random.Range(minShots, maxShots + 1);
-            float aimDelay;
-            if (controller.IsEnraged) aimDelay = config.EnragedBasicAimDelay;
-            else aimDelay = config.BasicAimDelay;
 
             for (int i = 0; i < shotCount; i++)
             {
@@ -52,13 +49,15 @@ namespace Enemy.Boss.States
                     stateMachine.ChangeState(controller.IdleState);
                     yield break;
                 }
-                
+
+                float aimDelay = controller.GetEffectiveBasicAimDelay();
                 yield return new WaitForSeconds(aimDelay);
 
                 Vector3 target = controller.PlayerTransform.position + Vector3.up;
-                controller.FireProjectileAtTarget(config.BasicProjectilePrefab, config.BasicAttackDamage, target);
+                GameObject prefab = controller.GetBasicProjectilePrefab();
+                controller.FireProjectileAtTarget(prefab, controller.GetEffectiveBasicDamage(), target);
 
-                yield return new WaitForSeconds(config.BasicInterval);
+                yield return new WaitForSeconds(controller.GetEffectiveBasicInterval());
             }
 
             stateMachine.ChangeState(controller.ChaseState);

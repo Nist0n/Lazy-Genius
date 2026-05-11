@@ -108,10 +108,7 @@ namespace Enemy.States
 
             controller.Agent.SetDestination(targetPos);
             
-            if (controller.Anim)
-            {
-                controller.Anim.Play("Chase");
-            }
+            controller.Anim.Play(controller.ChaseAnimState);
         }
 
         private void TryShoot(float distance)
@@ -121,7 +118,7 @@ namespace Enemy.States
                 return;
             }
 
-            if (Time.time < _lastShotTime + config.AttackCooldown)
+            if (Time.time < _lastShotTime + controller.EffectiveAttackCooldown)
             {
                 return;
             }
@@ -131,7 +128,7 @@ namespace Enemy.States
                 return;
             }
 
-            controller.Anim.Play("Attack");
+            controller.Anim.Play(controller.AttackAnimState);
             _lastShotTime = Time.time;
             StartAttack();
         }
@@ -150,9 +147,7 @@ namespace Enemy.States
                 Quaternion rotation = Quaternion.LookRotation(toPlayer.normalized);
                 GameObject instance = UnityEngine.Object.Instantiate(config.ProjectilePrefab, origin, rotation);
 
-                float damage;
-                if (config.ProjectileDamage > 0f) damage = config.ProjectileDamage;
-                else damage = config.AttackDamage;
+                float damage = controller.EffectiveProjectileDamage;
 
                 var projectile = instance.GetComponent<RangedProjectile>();
                 if (projectile)

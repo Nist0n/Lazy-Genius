@@ -140,6 +140,37 @@ Transform:
   - {fileID: 623222880012014867}
   m_Father: {fileID: 3846418758986173875}
   m_LocalEulerAnglesHint: {x: 0.0000052363275, y: 0.000010017911, z: 9.028263e-13}
+--- !u!1 &395589175275925821
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6226762361528245153}
+  m_Layer: 6
+  m_Name: Socket
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6226762361528245153
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 395589175275925821}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.0019643242, y: 0.63479596, z: 0.7726665, w: 0.0040769526}
+  m_LocalPosition: {x: -0.0054614856, y: 0.35122833, z: -0.008377962}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1108297846264076908}
+  m_LocalEulerAnglesHint: {x: -78.8, y: 2.423, z: 177.405}
 --- !u!1 &1148057766825321202
 GameObject:
   m_ObjectHideFlags: 0
@@ -672,6 +703,7 @@ GameObject:
   - component: {fileID: 7319024310995695538}
   - component: {fileID: 3540853150286708726}
   - component: {fileID: 4637526271838431058}
+  - component: {fileID: 8807225665215968652}
   m_Layer: 6
   m_Name: Ranged
   m_TagString: Enemy
@@ -924,6 +956,24 @@ MonoBehaviour:
   currentStateName: 
   SoundSource: {fileID: 3540853150286708726}
   StepsSource: {fileID: 1519880962716668743}
+  defaultAttackAnimState: Attack
+  defaultChaseAnimState: Chase
+--- !u!114 &8807225665215968652
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2908017187989157360}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: afd22f8a2d8419a489aa8bad1359d833, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Enemy.Weapons.EnemyWeaponSpawner
+  weaponSocket: {fileID: 6226762361528245153}
+  loadout: {fileID: 11400000, guid: c9b239c438f402d428e323238623d0a4, type: 2}
+  weaponPrefabs: []
+  noWeaponChance: 0
 --- !u!1 &3006748163066882550
 GameObject:
   m_ObjectHideFlags: 0
@@ -1573,7 +1623,8 @@ Transform:
   m_LocalPosition: {x: -0.036763526, y: 0.22238792, z: 0.000000026226044}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 6226762361528245153}
   m_Father: {fileID: 2159689396737522439}
   m_LocalEulerAnglesHint: {x: 51.557373, y: -0.000020245321, z: -0.000017937786}
 --- !u!1 &7752676149699702133
