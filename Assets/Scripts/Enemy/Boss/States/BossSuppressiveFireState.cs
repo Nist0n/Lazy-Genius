@@ -14,7 +14,7 @@ namespace Enemy.Boss.States
         public override void Enter()
         {
             controller.SetMovementEnabled(false);
-            controller.PlayAnimation("Attack");
+            controller.PlayBossSuppressiveAttackAnimation();
             _fireRoutine = controller.StartCoroutine(SuppressiveFireRoutine());
         }
 
@@ -30,7 +30,7 @@ namespace Enemy.Boss.States
         private IEnumerator SuppressiveFireRoutine()
         {
             float duration = config.SuppressiveDuration + (controller.IsEnraged ? config.EnragedSuppressiveBonusDuration : 0f);
-            float shotInterval = 1f / Mathf.Max(1f, config.SuppressiveShotsPerSecond);
+            float shotInterval = controller.GetEffectiveSuppressiveShotInterval();
             float elapsed = 0f;
 
             while (elapsed < duration)
@@ -56,7 +56,8 @@ namespace Enemy.Boss.States
                     0f
                 ) * baseDirection;
 
-                controller.FireProjectile(config.SuppressiveProjectilePrefab, config.SuppressiveDamage, spreadDirection);
+                GameObject prefab = controller.GetSuppressiveProjectilePrefab();
+                controller.FireProjectile(prefab, controller.GetEffectiveSuppressiveDamage(), spreadDirection);
                 yield return new WaitForSeconds(shotInterval);
                 elapsed += shotInterval;
             }

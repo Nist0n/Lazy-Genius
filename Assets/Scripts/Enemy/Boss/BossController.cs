@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using Enemy.Boss.States;
 using SaveSystem;
+using Random = UnityEngine.Random;
 
 namespace Enemy.Boss
 {
@@ -20,6 +21,13 @@ namespace Enemy.Boss
         [Header("Optional Transforms")]
         [SerializeField] private Transform muzzleTransform;
         [SerializeField] private Transform rocketSpawnTransform;
+
+        [Header("Weapon & element")]
+        [SerializeField] private BossWeaponProfile[] weaponProfiles;
+        [SerializeField] private BossElementProfile[] elementProfiles;
+
+        private BossWeaponProfile _weaponProfile;
+        private BossElementProfile _elementProfile;
 
         private Transform _playerTransform;
         private NavMeshAgent _agent;
@@ -69,7 +77,137 @@ namespace Enemy.Boss
             }
 
             TryFindPlayer();
+            PickRandomWeaponAndElement();
             StateMachine = new BossStateMachine();
+        }
+
+        private void PickRandomWeaponAndElement()
+        {
+            if (weaponProfiles != null && weaponProfiles.Length > 0)
+            {
+                _weaponProfile = weaponProfiles[Random.Range(0, weaponProfiles.Length)];
+                Debug.Log(_weaponProfile);
+            }
+
+            if (elementProfiles != null && elementProfiles.Length > 0)
+            {
+                _elementProfile = elementProfiles[Random.Range(0, elementProfiles.Length)];
+                Debug.Log(_elementProfile);
+            }
+        }
+
+        public GameObject GetBasicProjectilePrefab()
+        {
+            if (_elementProfile && _elementProfile.BasicProjectilePrefab)
+            {
+                return _elementProfile.BasicProjectilePrefab;
+            }
+
+            if (config) return config.BasicProjectilePrefab;
+            else return null;
+        }
+
+        public GameObject GetSuppressiveProjectilePrefab()
+        {
+            if (_elementProfile && _elementProfile.SuppressiveProjectilePrefab)
+            {
+                return _elementProfile.SuppressiveProjectilePrefab;
+            }
+
+            if (config) return config.SuppressiveProjectilePrefab;
+            else return null;
+        }
+
+        public float GetEffectiveBasicDamage()
+        {
+            float baseDamage;
+            if (config) baseDamage = config.BasicAttackDamage;
+            else baseDamage = 0f;
+            
+            float mul;
+            if (_weaponProfile) mul = _weaponProfile.DamageMultiplier;
+            else mul = 1f;
+            
+            return baseDamage * mul;
+        }
+
+        public float GetEffectiveSuppressiveDamage()
+        {
+            float baseDamage;
+            if (config) baseDamage = config.SuppressiveDamage;
+            else baseDamage = 0f;
+            
+            float mul;
+            if (_weaponProfile) mul = _weaponProfile.DamageMultiplier;
+            else mul = 1f;
+            
+            return baseDamage * mul;
+        }
+
+        public float GetEffectiveBasicAimDelay()
+        {
+            float baseDelay;
+            if (config)
+                if (IsEnraged) baseDelay = config.EnragedBasicAimDelay;
+                else baseDelay = config.BasicAimDelay;
+            else baseDelay = 0.5f;
+            
+            float speed;
+            if (_weaponProfile) speed = _weaponProfile.AttackSpeedMultiplier;
+            else speed = 1f;
+            
+            return baseDelay / speed;
+        }
+
+        public float GetEffectiveBasicInterval()
+        {
+            float baseInterval;
+            if (config) baseInterval = config.BasicInterval;
+            else baseInterval = 0.45f;
+            
+            float speed;
+            if (_weaponProfile) speed = _weaponProfile.AttackSpeedMultiplier;
+            else speed = 1f;
+            
+            return baseInterval / speed;
+        }
+
+        public float GetEffectiveSuppressiveShotInterval()
+        {
+            float sps;
+            if (config) sps = config.SuppressiveShotsPerSecond;
+            else sps = 8f;
+            
+            float baseInterval = 1f / Mathf.Max(1f, sps);
+            float speed;
+            if (_weaponProfile) speed = _weaponProfile.AttackSpeedMultiplier;
+            else speed = 1f;
+            
+            return baseInterval / speed;
+        }
+
+        public void PlayBossChaseAnimation()
+        {
+            string state;
+            if (_weaponProfile) state = _weaponProfile.ChaseAnimState;
+            else state = "Chase";
+            PlayAnimation(state);
+        }
+
+        public void PlayBossBasicAttackAnimation()
+        {
+            string state;
+            if (_weaponProfile) state = _weaponProfile.BasicAttackAnimState;
+            else state = "Attack";
+            PlayAnimation(state);
+        }
+
+        public void PlayBossSuppressiveAttackAnimation()
+        {
+            string state;
+            if (_weaponProfile) state = _weaponProfile.SuppressiveAttackAnimState;
+            else state = "Attack";
+            PlayAnimation(state);
         }
 
         private void Start()
@@ -265,6 +403,11 @@ namespace Enemy.Boss
             if (rangedProjectile)
             {
                 rangedProjectile.Initialize(damage, gameObject);
+            }
+
+            if (_weaponProfile && _elementProfile)
+            {
+                BossProjectileVisualApplier.Apply(projectile, _elementProfile, _weaponProfile);
             }
         }
 

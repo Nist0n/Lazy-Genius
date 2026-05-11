@@ -11,7 +11,7 @@ namespace Enemy.Boss.States
         public override void Enter()
         {
             controller.SetMovementEnabled(true);
-            controller.PlayAnimation("Chase");
+            controller.PlayBossChaseAnimation();
         }
 
         public override void Exit()

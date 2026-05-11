@@ -159,6 +159,14 @@ MonoBehaviour:
   currentStateName: 
   muzzleTransform: {fileID: 2378464448689513746}
   rocketSpawnTransform: {fileID: 7631235137027284983}
+  weaponProfiles:
+  - {fileID: 11400000, guid: 60a215ae4b1d327448ade92cda1a1751, type: 2}
+  - {fileID: 11400000, guid: a6a168be190a5454d96a2c95e986ed07, type: 2}
+  elementProfiles:
+  - {fileID: 11400000, guid: f01cb0008c3e11940af5a49739108038, type: 2}
+  - {fileID: 11400000, guid: c2b0bd0a734f1d240bafa1a4fd25c0c4, type: 2}
+  - {fileID: 11400000, guid: 3a53788ce03ef0b4ba9b551210e50ca9, type: 2}
+  - {fileID: 11400000, guid: 5c3ed240b7881d447838fa8d51790ceb, type: 2}
 --- !u!65 &6328664934377023470
 BoxCollider:
   m_ObjectHideFlags: 0
