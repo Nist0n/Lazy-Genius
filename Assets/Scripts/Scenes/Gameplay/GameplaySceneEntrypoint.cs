@@ -4,6 +4,7 @@ using Composition;
 using Core;
 using Game;
 using Game.Input;
+using Game.Score;
 using Game.UI;
 using Player;
 using Player.UI;
@@ -31,6 +32,8 @@ namespace Scenes.Gameplay
         [SerializeField] private CharacterSelectionUI characterSelectionUI;
         [SerializeField] private SettingsController settingsController;
         [SerializeField] private EnemyRuntimeSpawner enemyRuntimeSpawner;
+        [SerializeField] private KillScoreSystem killScoreSystem;
+        [SerializeField] private BossSpawnOnScore bossSpawnOnScore;
 
         private SettingsTabsController _settingsTabsController;
         private CharacterSelectionController _characterSelectionController;
@@ -71,6 +74,22 @@ namespace Scenes.Gameplay
                 hudManager.Initialize(playerHealth, Camera.main);
             }
 
+            if (killScoreSystem)
+            {
+                killScoreSystem.Initialize(audio);
+
+                if (hudManager)
+                {
+                    hudManager.OnKillScoreChanged(killScoreSystem.CurrentScore);
+                    killScoreSystem.ScoreChanged += hudManager.OnKillScoreChanged;
+                }
+
+                if (bossSpawnOnScore)
+                {
+                    killScoreSystem.ScoreChanged += bossSpawnOnScore.OnScoreChanged;
+                }
+            }
+
             if (abilitySlotsUiManager && abilitySlotSystem)
             {
                 abilitySlotsUiManager.Initialize(abilitySlotSystem);
@@ -106,6 +125,19 @@ namespace Scenes.Gameplay
 
         private void OnDestroy()
         {
+            if (killScoreSystem)
+            {
+                if (hudManager)
+                {
+                    killScoreSystem.ScoreChanged -= hudManager.OnKillScoreChanged;
+                }
+
+                if (bossSpawnOnScore)
+                {
+                    killScoreSystem.ScoreChanged -= bossSpawnOnScore.OnScoreChanged;
+                }
+            }
+
             _settingsTabsController?.Dispose();
             _settingsTabsController = null;
             

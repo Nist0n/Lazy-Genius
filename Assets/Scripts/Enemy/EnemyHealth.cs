@@ -64,6 +64,8 @@ namespace Enemy
             
             _isDead = true;
             currentHealth = 0;
+
+            Game.Events.GameEvents.OnMobKilled(gameObject);
             
             if (_enemyController)
             {

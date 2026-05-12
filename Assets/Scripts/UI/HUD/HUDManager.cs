@@ -2,6 +2,7 @@ using UnityEngine;
 using Player;
 using System.Collections;
 using Enemy;
+using TMPro;
 
 namespace UI.HUD
 {
@@ -11,6 +12,7 @@ namespace UI.HUD
         [SerializeField] private ResourceBarUI healthBar;
         [SerializeField] private ResourceBarUI energyBar;
         [SerializeField] private CrosshairUI crosshair;
+        [SerializeField] private TextMeshProUGUI killScoreText;
         
         [Header("Raycast Settings")]
         [SerializeField] private float interactionRange = 50f;
@@ -53,6 +55,16 @@ namespace UI.HUD
         private void OnEnergyChanged(float current, float max)
         {
             if (energyBar) energyBar.UpdateValue(current, max);
+        }
+
+        public void OnKillScoreChanged(int score)
+        {
+            if (!killScoreText)
+            {
+                return;
+            }
+
+            killScoreText.text = score.ToString();
         }
 
         private void UpdateCrosshairRaycast()
