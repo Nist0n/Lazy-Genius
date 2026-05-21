@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Enemy;
+using Game.Events;
 using SaveSystem;
 using UnityEngine;
 
@@ -25,6 +26,12 @@ namespace Scenes.Gameplay
         [SerializeField] private Transform spawnedRoot;
 
         private bool _spawned;
+        private EventBus _eventBus;
+
+        public void Initialize(EventBus eventBus)
+        {
+            _eventBus = eventBus;
+        }
 
         private void Reset()
         {
@@ -230,7 +237,7 @@ namespace Scenes.Gameplay
             return new Vector3(x, ry, z);
         }
 
-        private static void PlaceSpawnedEnemy(EnemyController enemy, Vector3 position)
+        private void PlaceSpawnedEnemy(EnemyController enemy, Vector3 position)
         {
             if (!enemy)
             {
@@ -238,6 +245,7 @@ namespace Scenes.Gameplay
             }
 
             enemy.transform.position = position;
+            enemy.Health?.BindEventBus(_eventBus);
         }
     }
 }

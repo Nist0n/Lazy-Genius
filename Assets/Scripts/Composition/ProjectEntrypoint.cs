@@ -1,6 +1,7 @@
 using Abstractions.Audio;
 using Abstractions.Characters;
 using Abstractions.Save;
+using Game.Events;
 using Infrastructure.Interactors;
 using Infrastructure.Services;
 using UnityEngine;
@@ -22,6 +23,7 @@ namespace Composition
 
             var services = new ServiceContainer();
             
+            services.Register(new EventBus());
             services.Register<IAudioService>(new UnityAudioService());
             services.Register<ICharacterSaveService>(new CharacterSaveInteractor());
             services.Register<ICharacterService>(new CharacterManagerCharacterService());

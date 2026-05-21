@@ -1,3 +1,5 @@
+using Enemy;
+using Game.Events;
 using UnityEngine;
 
 namespace Scenes.Gameplay
@@ -9,6 +11,12 @@ namespace Scenes.Gameplay
         [SerializeField] [Min(1)] private int killsToSpawnBoss = 3;
 
         private bool _spawned;
+        private EventBus _eventBus;
+
+        public void Initialize(EventBus eventBus)
+        {
+            _eventBus = eventBus;
+        }
 
         public void OnScoreChanged(int score)
         {
@@ -25,7 +33,12 @@ namespace Scenes.Gameplay
             if (spawnPoint) rotation = spawnPoint.rotation;
             else rotation = transform.rotation;
             
-            Instantiate(bossPrefab, position, rotation);
+            var boss = Instantiate(bossPrefab, position, rotation);
+            if (_eventBus != null && boss.TryGetComponent(out EnemyHealth health))
+            {
+                health.BindEventBus(_eventBus);
+            }
+
             _spawned = true;
         }
     }

@@ -2,13 +2,16 @@ using Abstractions.Audio;
 using Abstractions.Characters;
 using Composition;
 using Core;
+using Enemy;
 using Game;
+using Game.Events;
 using Game.Input;
 using Game.Score;
 using Game.UI;
 using Player;
 using Player.UI;
 using UI;
+using UI.Enemy;
 using UI.HUD;
 using UI.MainMenu.MVC;
 using UI.Settings;
@@ -34,6 +37,7 @@ namespace Scenes.Gameplay
         [SerializeField] private EnemyRuntimeSpawner enemyRuntimeSpawner;
         [SerializeField] private KillScoreSystem killScoreSystem;
         [SerializeField] private BossSpawnOnScore bossSpawnOnScore;
+        [SerializeField] private EnemyUIManager enemyUiManager;
 
         private SettingsTabsController _settingsTabsController;
         private CharacterSelectionController _characterSelectionController;
@@ -62,12 +66,15 @@ namespace Scenes.Gameplay
             
             var characters = App.Services.Resolve<ICharacterService>();
             var audio = App.Services.Resolve<IAudioService>();
+            var eventBus = App.Services.Resolve<EventBus>();
 
             var abilitySlotSystem = playerController.GetComponent<AbilitySlotSystem>();
             var playerHealth = playerController.GetComponent<HealthSystem>();
             var playerInputHandler = playerController.GetComponent<PlayerInputHandler>();
             
             gameFlowManager.Initialize(audio, characters);
+
+            playerHealth?.BindEventBus(eventBus);
 
             if (hudManager && playerHealth)
             {
@@ -76,7 +83,7 @@ namespace Scenes.Gameplay
 
             if (killScoreSystem)
             {
-                killScoreSystem.Initialize(audio);
+                killScoreSystem.Initialize(audio, eventBus);
 
                 if (hudManager)
                 {
@@ -110,7 +117,12 @@ namespace Scenes.Gameplay
                 pauseMenuUi.Initialize(pauseManager, characters);
             }
 
+            enemyUiManager?.Initialize(eventBus);
+
+            enemyRuntimeSpawner?.Initialize(eventBus);
+            bossSpawnOnScore?.Initialize(eventBus);
             enemyRuntimeSpawner?.TrySpawnFromActiveCharacter();
+            BindEnemyHealthInScene(eventBus);
 
             if (settingsController && _settingsTabsController == null)
             {
@@ -120,6 +132,15 @@ namespace Scenes.Gameplay
             if (characterSelectionUI && _characterSelectionController == null)
             {
                 _characterSelectionController = new CharacterSelectionController(characterSelectionUI, characters);
+            }
+        }
+
+        private static void BindEnemyHealthInScene(EventBus eventBus)
+        {
+            var enemies = FindObjectsByType<EnemyHealth>(FindObjectsSortMode.None);
+            for (var i = 0; i < enemies.Length; i++)
+            {
+                enemies[i].BindEventBus(eventBus);
             }
         }
 

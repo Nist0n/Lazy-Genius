@@ -10,6 +10,7 @@ namespace UI.Enemy
         
         private Camera _mainCamera;
         private EnemyHealthBar _currentHoveredBar;
+        private EventBus _eventBus;
         
         private const int EnemyLayerIndex = 6;
 
@@ -21,12 +22,22 @@ namespace UI.Enemy
             return mask;
         }
 
+        public void Initialize(EventBus eventBus)
+        {
+            if (_eventBus != null)
+            {
+                _eventBus.Unsubscribe<EntityDamagedEvent>(OnEntityDamaged);
+            }
+
+            _eventBus = eventBus;
+            _eventBus.Subscribe<EntityDamagedEvent>(OnEntityDamaged);
+        }
+
         private void Start()
         {
             _mainCamera = Camera.main;
             if (!_mainCamera) _mainCamera = FindFirstObjectByType<Camera>();
             if (enemyLayer == 0) enemyLayer = GetEnemyLayerMask();
-            GameEvents.EntityDamaged += OnEntityDamaged;
         }
         
         private void Update()
@@ -64,11 +75,11 @@ namespace UI.Enemy
             if (_currentHoveredBar) _currentHoveredBar.SetHovered(true);
         }
         
-        private void OnEntityDamaged(GameObject target, float amount)
+        private void OnEntityDamaged(EntityDamagedEvent eventData)
         {
-            if (target)
+            if (eventData.Target)
             {
-                var healthBar = target.GetComponentInChildren<EnemyHealthBar>();
+                var healthBar = eventData.Target.GetComponentInChildren<EnemyHealthBar>();
                 if (healthBar)
                 {
                     healthBar.OnDamageTaken();
@@ -78,7 +89,10 @@ namespace UI.Enemy
         
         private void OnDestroy()
         {
-            GameEvents.EntityDamaged -= OnEntityDamaged;
+            if (_eventBus != null)
+            {
+                _eventBus.Unsubscribe<EntityDamagedEvent>(OnEntityDamaged);
+            }
         }
     }
 }

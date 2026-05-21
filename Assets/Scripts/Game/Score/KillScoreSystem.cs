@@ -13,27 +13,33 @@ namespace Game.Score
         private int _score;
         private bool _victoryMusicPlayed;
         private IAudioService _audio;
+        private EventBus _eventBus;
 
         public int CurrentScore => _score;
 
         public event Action<int> ScoreChanged;
 
-        public void Initialize(IAudioService audio)
+        public void Initialize(IAudioService audio, EventBus eventBus)
         {
-            _audio = audio;
-        }
+            if (_eventBus != null)
+            {
+                _eventBus.Unsubscribe<MobKilledEvent>(HandleMobKilled);
+            }
 
-        private void OnEnable()
-        {
-            GameEvents.MobKilled += HandleMobKilled;
+            _audio = audio;
+            _eventBus = eventBus;
+            _eventBus.Subscribe<MobKilledEvent>(HandleMobKilled);
         }
 
         private void OnDisable()
         {
-            GameEvents.MobKilled -= HandleMobKilled;
+            if (_eventBus != null)
+            {
+                _eventBus.Unsubscribe<MobKilledEvent>(HandleMobKilled);
+            }
         }
 
-        private void HandleMobKilled(GameObject _)
+        private void HandleMobKilled(MobKilledEvent _)
         {
             _score++;
             ScoreChanged?.Invoke(_score);

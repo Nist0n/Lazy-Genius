@@ -1,5 +1,6 @@
 using System;
 using Core;
+using Game.Events;
 using UnityEngine;
 
 namespace Player
@@ -19,6 +20,7 @@ namespace Player
         private float _lastEnergyUseTime;
         private bool _isDead;
         private PlayerController _playerController;
+        private EventBus _eventBus;
         
         public event Action<float, float> OnHealthChanged;
         public event Action<float, float> OnEnergyChanged;
@@ -79,6 +81,11 @@ namespace Player
             RegenerateEnergy();
         }
         
+        public void BindEventBus(EventBus eventBus)
+        {
+            _eventBus = eventBus;
+        }
+
         public void Initialize(float health = -1, float energy = -1)
         {
             if (health > 0)
@@ -133,7 +140,7 @@ namespace Player
                 _playerController.StateMachine.ChangeState(PlayerState.TakingDamage);
             }
             
-            Game.Events.GameEvents.OnEntityDamaged(gameObject, damage);
+            _eventBus?.Publish(new EntityDamagedEvent(gameObject, damage));
             
             if (currentHealth <= 0 && !_isDead)
             {

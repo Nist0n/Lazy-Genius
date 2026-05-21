@@ -1922,6 +1922,7 @@ MonoBehaviour:
   enemyRuntimeSpawner: {fileID: 803171162}
   killScoreSystem: {fileID: 586743307}
   bossSpawnOnScore: {fileID: 1615337626}
+  enemyUiManager: {fileID: 1750089501}
 --- !u!4 &921310096
 Transform:
   m_ObjectHideFlags: 0

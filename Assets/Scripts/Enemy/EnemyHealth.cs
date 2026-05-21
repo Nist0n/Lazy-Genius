@@ -3,6 +3,7 @@ using Core;
 using System;
 using System.Collections;
 using Audio;
+using Game.Events;
 
 namespace Enemy
 {
@@ -17,6 +18,7 @@ namespace Enemy
 
         private bool _isDead;
         private EnemyController _enemyController;
+        private EventBus _eventBus;
         
         public float CurrentHealth => currentHealth;
         public float MaxHealth => maxHealth;
@@ -36,6 +38,11 @@ namespace Enemy
             _isDead = false;
         }
 
+        public void BindEventBus(EventBus eventBus)
+        {
+            _eventBus = eventBus;
+        }
+
         public void TakeDamage(float damage, DamageInfo info)
         {
             if (_isDead) return;
@@ -48,7 +55,7 @@ namespace Enemy
             Debug.Log("GetHitReleased");
             OnDamageTaken?.Invoke(info);
             
-            Game.Events.GameEvents.EntityDamaged?.Invoke(gameObject, damage);
+            _eventBus?.Publish(new EntityDamagedEvent(gameObject, damage));
 
             if (currentHealth <= 0)
             {
@@ -65,7 +72,7 @@ namespace Enemy
             _isDead = true;
             currentHealth = 0;
 
-            Game.Events.GameEvents.OnMobKilled(gameObject);
+            _eventBus?.Publish(new MobKilledEvent(gameObject));
             
             if (_enemyController)
             {
