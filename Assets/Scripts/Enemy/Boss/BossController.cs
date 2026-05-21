@@ -5,7 +5,6 @@ using Enemy.Boss.Projectiles;
 using Player.Projectiles;
 using UnityEngine;
 using UnityEngine.AI;
-using Enemy.Boss.States;
 using SaveSystem;
 using Random = UnityEngine.Random;
 
@@ -35,39 +34,33 @@ namespace Enemy.Boss
         private float _currentHealth;
         private int _playerSearchCooldown;
         private bool _deathSequenceStarted;
-        
+
+        private BossFightStateMachine _fightStateMachine;
+        private float _enragedIntroStartTime;
+
+        private Coroutine _basicAttackRoutine;
+        private Coroutine _suppressiveFireRoutine;
+        private Coroutine _rocketBarrageRoutine;
+        private Coroutine _enragedIntroRoutine;
+
         public event Action<float> OnHealthChanged;
 
-        public BossStateMachine StateMachine { get; private set; }
+        public BossConfig Config => config;
         public Transform PlayerTransform => _playerTransform;
-        public NavMeshAgent Agent => _agent;
-
-        public BossIdleState IdleState { get; private set; }
-        public BossChaseState ChaseState { get; private set; }
-        public BossBasicRangedAttackState BasicAttackState { get; private set; }
-        public BossSuppressiveFireState SuppressiveFireState { get; private set; }
-        public BossRocketBarrageState RocketBarrageState { get; private set; }
-        public BossOverheatState OverheatState { get; private set; }
-        public BossEnragedState EnragedState { get; private set; }
-        public BossDeathState DeathState { get; private set; }
-
         public bool IsDead { get; private set; }
         public bool IsPeacefulModeEnabled { get; private set; }
         public bool IsEnraged { get; private set; }
-        public bool EnragedPending { get; set; }
         public float LastRocketBarrageTime { get; set; } = -999f;
+
         public float GetHealth() => _currentHealth;
-        public float GetMaxHealth()
-        {
-            if (config) return config.MaxHealth;
-            else return 0f;
-        }
+
+        public float GetMaxHealth() => config ? config.MaxHealth : 0f;
 
         private void Awake()
         {
             _agent = GetComponent<NavMeshAgent>();
             _animator = GetComponentInChildren<Animator>();
-            
+
             IsPeacefulModeEnabled = CharacterManager.Instance && CharacterManager.Instance.HasActiveCharacter && CharacterManager.Instance.ActiveCharacter != null && CharacterManager.Instance.ActiveCharacter.PeacefulModeEnabled;
 
             if (config)
@@ -78,7 +71,26 @@ namespace Enemy.Boss
 
             TryFindPlayer();
             PickRandomWeaponAndElement();
-            StateMachine = new BossStateMachine();
+        }
+
+        private void Start()
+        {
+            SetFightStateMachine(new BossFightStateMachine(this));
+        }
+
+        private void SetFightStateMachine(BossFightStateMachine fightStateMachine)
+        {
+            _fightStateMachine?.CurrentState?.Exit();
+            StopAllCombatRoutines();
+            _fightStateMachine = fightStateMachine;
+            _fightStateMachine.Initialize();
+        }
+
+        private void StopAllCombatRoutines()
+        {
+            StopBasicAttackRoutine();
+            StopSuppressiveFireRoutine();
+            StopRocketBarrageRoutine();
         }
 
         private void PickRandomWeaponAndElement()
@@ -86,17 +98,15 @@ namespace Enemy.Boss
             if (weaponProfiles != null && weaponProfiles.Length > 0)
             {
                 _weaponProfile = weaponProfiles[Random.Range(0, weaponProfiles.Length)];
-                Debug.Log(_weaponProfile);
             }
 
             if (elementProfiles != null && elementProfiles.Length > 0)
             {
                 _elementProfile = elementProfiles[Random.Range(0, elementProfiles.Length)];
-                Debug.Log(_elementProfile);
             }
         }
 
-        public GameObject GetBasicProjectilePrefab()
+        private GameObject GetBasicProjectilePrefab()
         {
             if (_elementProfile && _elementProfile.BasicProjectilePrefab)
             {
@@ -104,10 +114,11 @@ namespace Enemy.Boss
             }
 
             if (config) return config.BasicProjectilePrefab;
-            else return null;
+
+            return null;
         }
 
-        public GameObject GetSuppressiveProjectilePrefab()
+        private GameObject GetSuppressiveProjectilePrefab()
         {
             if (_elementProfile && _elementProfile.SuppressiveProjectilePrefab)
             {
@@ -115,10 +126,11 @@ namespace Enemy.Boss
             }
 
             if (config) return config.SuppressiveProjectilePrefab;
-            else return null;
+            
+            return null;
         }
 
-        public float GetEffectiveBasicDamage()
+        private float GetEffectiveBasicDamage()
         {
             float baseDamage;
             if (config) baseDamage = config.BasicAttackDamage;
@@ -131,7 +143,7 @@ namespace Enemy.Boss
             return baseDamage * mul;
         }
 
-        public float GetEffectiveSuppressiveDamage()
+        private float GetEffectiveSuppressiveDamage()
         {
             float baseDamage;
             if (config) baseDamage = config.SuppressiveDamage;
@@ -144,14 +156,19 @@ namespace Enemy.Boss
             return baseDamage * mul;
         }
 
-        public float GetEffectiveBasicAimDelay()
+        private float GetEffectiveBasicAimDelay()
         {
             float baseDelay;
             if (config)
+            {
                 if (IsEnraged) baseDelay = config.EnragedBasicAimDelay;
                 else baseDelay = config.BasicAimDelay;
-            else baseDelay = 0.5f;
-            
+            }
+            else
+            {
+                baseDelay = 0.5f;
+            }
+
             float speed;
             if (_weaponProfile) speed = _weaponProfile.AttackSpeedMultiplier;
             else speed = 1f;
@@ -159,7 +176,7 @@ namespace Enemy.Boss
             return baseDelay / speed;
         }
 
-        public float GetEffectiveBasicInterval()
+        private float GetEffectiveBasicInterval()
         {
             float baseInterval;
             if (config) baseInterval = config.BasicInterval;
@@ -172,7 +189,7 @@ namespace Enemy.Boss
             return baseInterval / speed;
         }
 
-        public float GetEffectiveSuppressiveShotInterval()
+        private float GetEffectiveSuppressiveShotInterval()
         {
             float sps;
             if (config) sps = config.SuppressiveShotsPerSecond;
@@ -186,42 +203,31 @@ namespace Enemy.Boss
             return baseInterval / speed;
         }
 
-        public void PlayBossChaseAnimation()
+        private void PlayBossChaseAnimation()
         {
             string state;
             if (_weaponProfile) state = _weaponProfile.ChaseAnimState;
             else state = "Chase";
+            
             PlayAnimation(state);
         }
 
-        public void PlayBossBasicAttackAnimation()
+        private void PlayBossBasicAttackAnimation()
         {
             string state;
             if (_weaponProfile) state = _weaponProfile.BasicAttackAnimState;
             else state = "Attack";
+            
             PlayAnimation(state);
         }
 
-        public void PlayBossSuppressiveAttackAnimation()
+        private void PlayBossSuppressiveAttackAnimation()
         {
             string state;
             if (_weaponProfile) state = _weaponProfile.SuppressiveAttackAnimState;
             else state = "Attack";
+            
             PlayAnimation(state);
-        }
-
-        private void Start()
-        {
-            IdleState = new BossIdleState(this, StateMachine, config);
-            ChaseState = new BossChaseState(this, StateMachine, config);
-            BasicAttackState = new BossBasicRangedAttackState(this, StateMachine, config);
-            SuppressiveFireState = new BossSuppressiveFireState(this, StateMachine, config);
-            RocketBarrageState = new BossRocketBarrageState(this, StateMachine, config);
-            OverheatState = new BossOverheatState(this, StateMachine, config);
-            EnragedState = new BossEnragedState(this, StateMachine, config);
-            DeathState = new BossDeathState(this, StateMachine, config);
-
-            StateMachine.Initialize(IdleState);
         }
 
         private void Update()
@@ -241,13 +247,30 @@ namespace Enemy.Boss
                 return;
             }
 
-            if (!IsEnraged && _currentHealth > 0f && _currentHealth <= GetMaxHealth() * config.EnragedThresholdNormalized)
+            TryEnterEnragedPhase();
+
+            _fightStateMachine?.CurrentState?.LogicUpdate();
+            currentStateName = _fightStateMachine?.CurrentState?.GetType().Name ?? string.Empty;
+        }
+
+        private void TryEnterEnragedPhase()
+        {
+            if (!config || IsEnraged || IsDead || _currentHealth <= 0f)
             {
-                EnragedPending = true;
+                return;
             }
 
-            StateMachine.CurrentState?.LogicUpdate();
-            currentStateName = StateMachine.CurrentState?.GetType().Name ?? string.Empty;
+            if (_currentHealth > GetMaxHealth() * config.EnragedThresholdNormalized)
+            {
+                return;
+            }
+
+            if (_fightStateMachine is BossEnragedFightStateMachine)
+            {
+                return;
+            }
+
+            SetFightStateMachine(new BossEnragedFightStateMachine(this));
         }
 
         public void TakeDamage(float damage, DamageInfo damageInfo)
@@ -258,18 +281,20 @@ namespace Enemy.Boss
             }
 
             _currentHealth = Mathf.Max(0f, _currentHealth - damage);
-            
             OnHealthChanged?.Invoke(_currentHealth);
-            
-            StateMachine.ChangeState(ChaseState);
-            
+
+            TryEnterEnragedPhase();
+
             if (_currentHealth <= 0f)
             {
                 Die();
+                return;
             }
+
+            _fightStateMachine.ChangeState(_fightStateMachine.CreateChaseState());
         }
 
-        public bool CanSeePlayer()
+        private bool CanSeePlayer()
         {
             if (!_playerTransform || !config)
             {
@@ -315,7 +340,7 @@ namespace Enemy.Boss
             return false;
         }
 
-        public void LookAtPlayer(float rotationSpeed = 7f)
+        private void LookAtPlayer(float rotationSpeed = 7f)
         {
             if (!_playerTransform)
             {
@@ -333,7 +358,7 @@ namespace Enemy.Boss
             transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * rotationSpeed);
         }
 
-        public float DistanceToPlayer()
+        private float DistanceToPlayer()
         {
             if (!_playerTransform)
             {
@@ -345,10 +370,10 @@ namespace Enemy.Boss
 
         public bool IsRocketReady()
         {
-            return Time.time >= LastRocketBarrageTime + config.RocketCooldown;
+            return config && Time.time >= LastRocketBarrageTime + config.RocketCooldown;
         }
 
-        public void SetMovementEnabled(bool enabled)
+        private void SetMovementEnabled(bool enabled)
         {
             if (!_agent)
             {
@@ -362,7 +387,7 @@ namespace Enemy.Boss
             }
         }
 
-        public void MoveTo(Vector3 destination)
+        private void MoveTo(Vector3 destination)
         {
             if (!_agent || !_agent.enabled || !_agent.isOnNavMesh)
             {
@@ -372,7 +397,7 @@ namespace Enemy.Boss
             _agent.SetDestination(destination);
         }
 
-        public void PlayAnimation(string stateName)
+        private void PlayAnimation(string stateName)
         {
             if (_animator && !string.IsNullOrWhiteSpace(stateName))
             {
@@ -380,7 +405,7 @@ namespace Enemy.Boss
             }
         }
 
-        public void FireProjectile(GameObject projectilePrefab, float damage, Vector3 direction, float upwardBias = 0f)
+        private void FireProjectile(GameObject projectilePrefab, float damage, Vector3 direction, float upwardBias = 0f)
         {
             if (!projectilePrefab)
             {
@@ -390,6 +415,7 @@ namespace Enemy.Boss
             Vector3 origin;
             if (muzzleTransform) origin = muzzleTransform.position;
             else origin = transform.position + Vector3.up * 1.5f;
+            
             Vector3 shotDirection = (direction + Vector3.up * upwardBias).normalized;
             if (shotDirection.sqrMagnitude < 0.001f)
             {
@@ -411,7 +437,7 @@ namespace Enemy.Boss
             }
         }
 
-        public void FireProjectileAtTarget(GameObject projectilePrefab, float damage, Vector3 targetPosition, float upwardBias = 0f)
+        private void FireProjectileAtTarget(GameObject projectilePrefab, float damage, Vector3 targetPosition, float upwardBias = 0f)
         {
             Vector3 origin = GetMuzzlePosition();
             Vector3 direction = targetPosition - origin;
@@ -423,13 +449,13 @@ namespace Enemy.Boss
             FireProjectile(projectilePrefab, damage, direction, upwardBias);
         }
 
-        public Vector3 GetMuzzlePosition()
+        private Vector3 GetMuzzlePosition()
         {
             if (muzzleTransform) return muzzleTransform.position;
             return transform.position + Vector3.up * 1.5f;
         }
 
-        public void FireRocketAt(Vector3 targetPosition)
+        private void FireRocketAt(Vector3 targetPosition)
         {
             if (!config || !config.RocketProjectilePrefab)
             {
@@ -459,11 +485,10 @@ namespace Enemy.Boss
                     config.RocketExplosionRadius,
                     config.RocketLifetime,
                     gameObject);
-                return;
             }
         }
 
-        public void SpawnRocketTelegraph(Vector3 position)
+        private void SpawnRocketTelegraph(Vector3 position)
         {
             if (!config || !config.RocketTelegraphPrefab)
             {
@@ -474,7 +499,7 @@ namespace Enemy.Boss
             Destroy(marker, config.RocketTelegraphDuration + 0.2f);
         }
 
-        public void ApplyEnragedModifiers()
+        public void BeginEnragedPhase()
         {
             if (IsEnraged)
             {
@@ -482,10 +507,308 @@ namespace Enemy.Boss
             }
 
             IsEnraged = true;
-            if (_agent)
+            if (_agent && config)
             {
                 _agent.speed = config.MoveSpeed * config.EnragedMoveSpeedMultiplier;
             }
+        }
+
+        public void EnterIdle()
+        {
+            SetMovementEnabled(false);
+            PlayAnimation("Idle");
+        }
+
+        public bool ShouldChaseFromIdle()
+        {
+            if (!PlayerTransform || !config || !CanSeePlayer() || IsPeacefulModeEnabled)
+            {
+                return false;
+            }
+
+            float distance = DistanceToPlayer();
+            return distance > config.ChaseMinDistance && distance < config.DetectionRadius;
+        }
+
+        public bool ShouldBasicAttackFromIdle()
+        {
+            if (!PlayerTransform || !config || !CanSeePlayer() || IsPeacefulModeEnabled)
+            {
+                return false;
+            }
+
+            float distance = DistanceToPlayer();
+            return distance >= config.CombatMinDistance && distance <= config.CombatMaxDistance;
+        }
+
+        public void EnterChase()
+        {
+            SetMovementEnabled(true);
+            PlayBossChaseAnimation();
+        }
+
+        public void ExitChase()
+        {
+            SetMovementEnabled(false);
+        }
+
+        public void UpdateChase()
+        {
+            if (!PlayerTransform)
+            {
+                return;
+            }
+
+            LookAtPlayer();
+            MoveTo(PlayerTransform.position);
+        }
+
+        public bool ShouldReturnIdleFromChase()
+        {
+            return config && DistanceToPlayer() > config.DetectionRadius;
+        }
+
+        public bool CanAttackFromChase()
+        {
+            if (!config || !CanSeePlayer())
+            {
+                return false;
+            }
+
+            float distance = DistanceToPlayer();
+            return distance >= config.CombatMinDistance && distance <= config.CombatMaxDistance;
+        }
+
+        public void EnterBasicAttack()
+        {
+            SetMovementEnabled(false);
+            PlayBossBasicAttackAnimation();
+            StopBasicAttackRoutine();
+            _basicAttackRoutine = StartCoroutine(BasicAttackRoutine());
+        }
+
+        public void ExitBasicAttack()
+        {
+            StopBasicAttackRoutine();
+        }
+
+        private void StopBasicAttackRoutine()
+        {
+            if (_basicAttackRoutine != null)
+            {
+                StopCoroutine(_basicAttackRoutine);
+                _basicAttackRoutine = null;
+            }
+        }
+
+        public void UpdateBasicAttackFacing()
+        {
+            LookAtPlayer();
+        }
+
+        private IEnumerator BasicAttackRoutine()
+        {
+            if (!config)
+            {
+                yield break;
+            }
+
+            int minShots = Mathf.Max(1, config.BasicShotCountRange.x);
+            int maxShots = Mathf.Max(minShots, config.BasicShotCountRange.y);
+            int shotCount = Random.Range(minShots, maxShots + 1);
+
+            for (int i = 0; i < shotCount; i++)
+            {
+                if (IsDead || !PlayerTransform)
+                {
+                    _fightStateMachine.ChangeState(_fightStateMachine.CreateIdleState());
+                    yield break;
+                }
+
+                yield return new WaitForSeconds(GetEffectiveBasicAimDelay());
+
+                Vector3 target = PlayerTransform.position + Vector3.up;
+                GameObject prefab = GetBasicProjectilePrefab();
+                FireProjectileAtTarget(prefab, GetEffectiveBasicDamage(), target);
+
+                yield return new WaitForSeconds(GetEffectiveBasicInterval());
+            }
+
+            _fightStateMachine.ChangeState(_fightStateMachine.CreateChaseState());
+        }
+
+        public void EnterSuppressiveFire()
+        {
+            SetMovementEnabled(false);
+            PlayBossSuppressiveAttackAnimation();
+            StopSuppressiveFireRoutine();
+            _suppressiveFireRoutine = StartCoroutine(SuppressiveFireRoutine());
+        }
+
+        public void ExitSuppressiveFire()
+        {
+            StopSuppressiveFireRoutine();
+        }
+
+        private void StopSuppressiveFireRoutine()
+        {
+            if (_suppressiveFireRoutine != null)
+            {
+                StopCoroutine(_suppressiveFireRoutine);
+                _suppressiveFireRoutine = null;
+            }
+        }
+
+        private IEnumerator SuppressiveFireRoutine()
+        {
+            if (!config)
+            {
+                yield break;
+            }
+
+            float duration = config.SuppressiveDuration + (IsEnraged ? config.EnragedSuppressiveBonusDuration : 0f);
+            float shotInterval = GetEffectiveSuppressiveShotInterval();
+            float elapsed = 0f;
+
+            while (elapsed < duration)
+            {
+                if (IsDead || !PlayerTransform)
+                {
+                    _fightStateMachine.ChangeState(_fightStateMachine.CreateIdleState());
+                    yield break;
+                }
+
+                if (!CanSeePlayer())
+                {
+                    _fightStateMachine.ChangeState(_fightStateMachine.CreateChaseState());
+                    yield break;
+                }
+
+                LookAtPlayer();
+                Vector3 muzzleOrigin = GetMuzzlePosition();
+                Vector3 baseDirection = (PlayerTransform.position + Vector3.up - muzzleOrigin).normalized;
+                Vector3 spreadDirection = Quaternion.Euler(
+                    Random.Range(-config.SuppressiveSpreadAngle, config.SuppressiveSpreadAngle),
+                    Random.Range(-config.SuppressiveSpreadAngle, config.SuppressiveSpreadAngle),
+                    0f) * baseDirection;
+
+                GameObject prefab = GetSuppressiveProjectilePrefab();
+                FireProjectile(prefab, GetEffectiveSuppressiveDamage(), spreadDirection);
+                yield return new WaitForSeconds(shotInterval);
+                elapsed += shotInterval;
+            }
+
+            _fightStateMachine.ChangeState(_fightStateMachine.CreateOverheatState());
+        }
+
+        public void EnterRocketBarrage()
+        {
+            SetMovementEnabled(false);
+            PlayAnimation("Attack");
+            StopRocketBarrageRoutine();
+            _rocketBarrageRoutine = StartCoroutine(RocketBarrageRoutine());
+        }
+
+        public void ExitRocketBarrage()
+        {
+            StopRocketBarrageRoutine();
+        }
+
+        private void StopRocketBarrageRoutine()
+        {
+            if (_rocketBarrageRoutine != null)
+            {
+                StopCoroutine(_rocketBarrageRoutine);
+                _rocketBarrageRoutine = null;
+            }
+        }
+
+        private IEnumerator RocketBarrageRoutine()
+        {
+            if (!config || !PlayerTransform)
+            {
+                _fightStateMachine.ChangeState(_fightStateMachine.CreateIdleState());
+                yield break;
+            }
+
+            int min = Mathf.Max(1, config.RocketCountRange.x);
+            int max = Mathf.Max(min, config.RocketCountRange.y);
+            int count = Random.Range(min, max + 1);
+            if (IsEnraged)
+            {
+                count += Mathf.Max(0, config.EnragedExtraRockets);
+            }
+
+            Vector3 playerCenter = PlayerTransform.position;
+            Vector3[] targets = new Vector3[count];
+            for (int i = 0; i < count; i++)
+            {
+                Vector2 rnd = Random.insideUnitCircle * config.RocketAreaRadius;
+                targets[i] = playerCenter + new Vector3(rnd.x, 0f, rnd.y);
+                SpawnRocketTelegraph(targets[i]);
+            }
+
+            yield return new WaitForSeconds(config.RocketTelegraphDuration);
+
+            for (int i = 0; i < targets.Length; i++)
+            {
+                FireRocketAt(targets[i]);
+                yield return new WaitForSeconds(0.12f);
+            }
+
+            LastRocketBarrageTime = Time.time;
+            _fightStateMachine.ChangeState(_fightStateMachine.CreateOverheatState());
+        }
+
+        public void EnterOverheat()
+        {
+            SetMovementEnabled(false);
+            PlayAnimation("Idle");
+        }
+
+        public float GetOverheatDuration()
+        {
+            if (!config)
+            {
+                return 3f;
+            }
+
+            if (IsEnraged)
+            {
+                return config.EnragedOverheatDuration;
+            }
+
+            return Random.Range(config.OverheatDurationRange.x, config.OverheatDurationRange.y);
+        }
+
+        public bool IsOverheatComplete(float enterTime, float duration) => Time.time >= enterTime + duration;
+
+        public void EnterEnragedIntro()
+        {
+            SetMovementEnabled(false);
+            PlayAnimation("Enraged");
+            _enragedIntroStartTime = Time.time;
+        }
+
+        public bool IsEnragedIntroComplete()
+        {
+            float duration;
+            if (config) duration = config.EnragedStateDuration;
+            else duration = 0.8f;
+            
+            return Time.time >= _enragedIntroStartTime + duration;
+        }
+
+        public void EnterDeath()
+        {
+            SetMovementEnabled(false);
+            if (_agent)
+            {
+                _agent.enabled = false;
+            }
+
+            PlayAnimation("Death");
+            StartSelfDestruct();
         }
 
         private void TryFindPlayer()
@@ -505,13 +828,12 @@ namespace Enemy.Boss
             }
 
             IsDead = true;
-            EnragedPending = false;
-            StateMachine.ChangeState(DeathState);
+            _fightStateMachine.ChangeState(_fightStateMachine.CreateDeathState());
         }
 
-        public void StartSelfDestruct()
+        private void StartSelfDestruct()
         {
-            if (_deathSequenceStarted)
+            if (_deathSequenceStarted || !config)
             {
                 return;
             }

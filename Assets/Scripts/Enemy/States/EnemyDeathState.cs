@@ -1,24 +1,9 @@
 namespace Enemy.States
 {
-    public class EnemyDeathState : EnemyState
+    public class EnemyDeathState : EnemyFightState
     {
-        public EnemyDeathState(EnemyController controller, EnemyStateMachine stateMachine, EnemyConfig config) 
-            : base(controller, stateMachine, config) { }
+        public EnemyDeathState(EnemyFightStateMachine stateMachine) : base(stateMachine) { }
 
-        public override void Enter()
-        {
-            if (controller.Agent) controller.Agent.enabled = false;
-            controller.Anim.Play("Death");
-        }
-
-        public override void Exit()
-        {
-            
-        }
-
-        public override void LogicUpdate()
-        {
-
-        }
+        public override void Enter() => StateMachine.Enemy.EnterDeath();
     }
 }

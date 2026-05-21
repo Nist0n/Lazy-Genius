@@ -1,34 +1,23 @@
-using UnityEngine;
-
 namespace Enemy.Boss.States
 {
-    public class BossOverheatState : BossState
+    public class BossOverheatState : BossFightState
     {
         private float _cooldownDuration;
 
-        public BossOverheatState(BossController controller, BossStateMachine stateMachine, BossConfig config) : base(controller, stateMachine, config) { }
+        public BossOverheatState(BossFightStateMachine stateMachine) : base(stateMachine) { }
 
         public override void Enter()
         {
             base.Enter();
-            controller.SetMovementEnabled(false);
-            controller.PlayAnimation("Idle");
-
-            if (controller.IsEnraged)
-            {
-                _cooldownDuration = config.EnragedOverheatDuration;
-            }
-            else
-            {
-                _cooldownDuration = Random.Range(config.OverheatDurationRange.x, config.OverheatDurationRange.y);
-            }
+            StateMachine.Boss.EnterOverheat();
+            _cooldownDuration = StateMachine.Boss.GetOverheatDuration();
         }
 
         public override void LogicUpdate()
         {
-            if (Time.time >= startTime + _cooldownDuration)
+            if (StateMachine.Boss.IsOverheatComplete(StartTime, _cooldownDuration))
             {
-                stateMachine.ChangeState(controller.ChaseState);
+                StateMachine.ChangeState(StateMachine.CreateChaseState());
             }
         }
     }

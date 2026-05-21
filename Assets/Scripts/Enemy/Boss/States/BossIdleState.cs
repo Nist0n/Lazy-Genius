@@ -1,53 +1,22 @@
-using UnityEngine;
-
 namespace Enemy.Boss.States
 {
-    public class BossIdleState : BossState
+    public class BossIdleState : BossFightState
     {
-        public BossIdleState(BossController controller, BossStateMachine stateMachine, BossConfig config) : base(controller, stateMachine, config)
-        {
-        }
+        public BossIdleState(BossFightStateMachine stateMachine) : base(stateMachine) { }
 
-        public override void Enter()
-        {
-            controller.SetMovementEnabled(false);
-            controller.PlayAnimation("Idle");
-        }
+        public override void Enter() => StateMachine.Boss.EnterIdle();
 
         public override void LogicUpdate()
         {
-            if (controller.EnragedPending)
+            if (StateMachine.Boss.ShouldChaseFromIdle())
             {
-                stateMachine.ChangeState(controller.EnragedState);
+                StateMachine.ChangeState(StateMachine.CreateChaseState());
                 return;
             }
 
-            if (!controller.PlayerTransform)
+            if (StateMachine.Boss.ShouldBasicAttackFromIdle())
             {
-                return;
-            }
-
-            float distance = controller.DistanceToPlayer();
-            
-            if (!controller.CanSeePlayer())
-            {
-                return;
-            }
-
-            if (controller.IsPeacefulModeEnabled)
-            {
-                return;
-            }
-
-            if (distance > config.ChaseMinDistance && distance < config.DetectionRadius)
-            {
-                stateMachine.ChangeState(controller.ChaseState);
-                return;
-            }
-
-            if (distance >= config.CombatMinDistance && distance <= config.CombatMaxDistance)
-            {
-                stateMachine.ChangeState(controller.BasicAttackState);
+                StateMachine.ChangeState(StateMachine.CreateBasicAttackState());
             }
         }
     }

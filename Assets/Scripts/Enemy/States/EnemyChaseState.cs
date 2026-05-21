@@ -1,42 +1,29 @@
-using Audio;
-using UnityEngine;
-
 namespace Enemy.States
 {
-    public class EnemyChaseState : EnemyState
+    public class EnemyChaseState : EnemyFightState
     {
-        public EnemyChaseState(EnemyController controller, EnemyStateMachine stateMachine, EnemyConfig config) 
-            : base(controller, stateMachine, config) { }
+        public EnemyChaseState(EnemyFightStateMachine stateMachine) : base(stateMachine) { }
 
-        public override void Enter()
-        {
-            controller.StepsSource.enabled = true;
-            if (controller.Agent) controller.Agent.enabled = true; // Ensure agent is enabled
-            if (controller.Agent.isOnNavMesh) controller.Agent.isStopped = false;
-            controller.Anim.Play("Chase");
-        }
+        public override void Enter() => StateMachine.Enemy.EnterChase();
 
-        public override void Exit()
-        {
-            controller.StepsSource.enabled = false;
-            controller.Agent.isStopped = true;
-        }
+        public override void Exit() => StateMachine.Enemy.ExitChase();
 
         public override void LogicUpdate()
         {
-            if (!controller.PlayerTransform) return;
-
-            controller.Agent.SetDestination(controller.PlayerTransform.position);
-
-            float distance = Vector3.Distance(controller.transform.position, controller.PlayerTransform.position);
-
-            if (distance <= config.AttackRange)
+            if (!StateMachine.Enemy.PlayerTransform)
             {
-                stateMachine.ChangeState(controller.AttackState);
+                return;
             }
-            else if (distance > config.DetectionRadius * 1.5f)
+
+            StateMachine.Enemy.UpdateChaseMovement();
+
+            if (StateMachine.Enemy.ShouldAttackFromChase())
             {
-                stateMachine.ChangeState(controller.IdleState);
+                StateMachine.ChangeState(StateMachine.CreateCombatState());
+            }
+            else if (StateMachine.Enemy.ShouldLosePlayerFromChase())
+            {
+                StateMachine.ChangeState(StateMachine.CreateIdleState());
             }
         }
     }

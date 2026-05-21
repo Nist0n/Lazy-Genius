@@ -1,38 +1,24 @@
-using UnityEngine;
-
 namespace Enemy.States
 {
-    public class EnemyIdleState : EnemyState
+    public class EnemyIdleState : EnemyFightState
     {
-        public EnemyIdleState(EnemyController controller, EnemyStateMachine stateMachine, EnemyConfig config) 
-            : base(controller, stateMachine, config) { }
+        public EnemyIdleState(EnemyFightStateMachine stateMachine) : base(stateMachine) { }
 
-        public override void Enter()
-        {
-            if (controller.Agent) controller.Agent.enabled = true;
-            if (controller.Agent.isOnNavMesh) controller.Agent.isStopped = true;
-            controller.Anim.Play("Idle");
-        }
+        public override void Enter() => StateMachine.Enemy.EnterIdle();
 
-        public override void Exit()
-        {
-            controller.Agent.isStopped = false;
-        }
+        public override void Exit() => StateMachine.Enemy.ExitIdle();
 
         public override void LogicUpdate()
         {
-            if (controller.IsPeacefulModeEnabled && controller.ShouldAvoidByLowHealth && controller.PlayerTransform)
+            if (StateMachine.Enemy.ShouldEnterAvoidFromIdle())
             {
-                stateMachine.ChangeState(controller.AvoidState);
+                StateMachine.ChangeState(StateMachine.CreateAvoidState());
                 return;
             }
 
-            if (controller.PlayerTransform)
+            if (StateMachine.Enemy.ShouldEngageFromIdle())
             {
-                if (controller.CanSeePlayer())
-                {
-                    stateMachine.ChangeState(controller.GetInitialEngageState());
-                }
+                StateMachine.ChangeState(StateMachine.CreateEngageState());
             }
         }
     }

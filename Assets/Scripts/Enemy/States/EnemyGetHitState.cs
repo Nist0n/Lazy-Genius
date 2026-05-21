@@ -1,33 +1,43 @@
-using UnityEngine;
-
 namespace Enemy.States
 {
-    public class EnemyGetHitState : EnemyState
+    public class EnemyGetHitState : EnemyFightState
     {
-        private float _lastHitTime;
-        
-        public EnemyGetHitState(EnemyController controller, EnemyStateMachine stateMachine, EnemyConfig config) 
-            : base(controller, stateMachine, config) { }
+        public EnemyGetHitState(EnemyFightStateMachine stateMachine) : base(stateMachine) { }
 
-        public override void Enter()
-        {
-            if (controller.Agent) controller.Agent.enabled = false;
-            controller.Anim.Play("GetHit");
-            _lastHitTime = Time.time;
-        }
+        public override void Enter() => StateMachine.Enemy.EnterGetHit();
 
         public override void LogicUpdate()
         {
-            if (Time.time >= _lastHitTime + config.GetHitCooldown)
+            if (!StateMachine.Enemy.IsGetHitRecoveryComplete())
             {
-                if (!controller.PlayerTransform)
-                {
-                    stateMachine.ChangeState(controller.IdleState);
-                    return;
-                }
+                return;
+            }
 
-                float distance = Vector3.Distance(controller.transform.position, controller.PlayerTransform.position);
-                stateMachine.ChangeState(controller.GetPostHitState(distance));
+            if (!StateMachine.Enemy.PlayerTransform)
+            {
+                StateMachine.ChangeState(StateMachine.CreateIdleState());
+                return;
+            }
+
+            if (StateMachine.Enemy.ShouldReturnIdleAfterHit())
+            {
+                StateMachine.ChangeState(StateMachine.CreateIdleState());
+            }
+            else if (StateMachine.Enemy.ShouldChaseAfterHit())
+            {
+                StateMachine.ChangeState(StateMachine.CreateChaseState());
+            }
+            else if (StateMachine.Enemy.ShouldCombatAfterHit())
+            {
+                StateMachine.ChangeState(StateMachine.CreateCombatState());
+            }
+            else if (StateMachine.Enemy.ShouldEnterAvoidFromIdle())
+            {
+                StateMachine.ChangeState(StateMachine.CreateAvoidState());
+            }
+            else
+            {
+                StateMachine.ChangeState(StateMachine.CreateIdleState());
             }
         }
     }

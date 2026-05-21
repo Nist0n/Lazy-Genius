@@ -1,68 +1,35 @@
-using UnityEngine;
-
 namespace Enemy.Boss.States
 {
-    public class BossChaseState : BossState
+    public class BossChaseState : BossFightState
     {
-        public BossChaseState(BossController controller, BossStateMachine stateMachine, BossConfig config) : base(controller, stateMachine, config)
-        {
-        }
+        public BossChaseState(BossFightStateMachine stateMachine) : base(stateMachine) { }
 
-        public override void Enter()
-        {
-            controller.SetMovementEnabled(true);
-            controller.PlayBossChaseAnimation();
-        }
+        public override void Enter() => StateMachine.Boss.EnterChase();
 
-        public override void Exit()
-        {
-            controller.SetMovementEnabled(false);
-        }
+        public override void Exit() => StateMachine.Boss.ExitChase();
 
         public override void LogicUpdate()
         {
-            if (controller.EnragedPending)
+            if (!StateMachine.Boss.PlayerTransform)
             {
-                stateMachine.ChangeState(controller.EnragedState);
+                StateMachine.ChangeState(StateMachine.CreateIdleState());
                 return;
             }
 
-            if (!controller.PlayerTransform)
+            StateMachine.Boss.UpdateChase();
+
+            if (StateMachine.Boss.ShouldReturnIdleFromChase())
             {
-                stateMachine.ChangeState(controller.IdleState);
+                StateMachine.ChangeState(StateMachine.CreateIdleState());
                 return;
             }
 
-            controller.LookAtPlayer();
-            controller.MoveTo(controller.PlayerTransform.position);
-
-            float distance = controller.DistanceToPlayer();
-            bool canAttack = controller.CanSeePlayer() && distance >= config.CombatMinDistance && distance <= config.CombatMaxDistance;
-            if (!canAttack)
+            if (!StateMachine.Boss.CanAttackFromChase())
             {
-                if (distance > config.DetectionRadius)
-                {
-                    stateMachine.ChangeState(controller.IdleState);
-                }
-
-                return;
-            }
-            
-            float roll = Random.value;
-            if (controller.IsRocketReady() && roll < 0.3f)
-            {
-                stateMachine.ChangeState(controller.RocketBarrageState);
                 return;
             }
 
-            if (roll < 0.65f)
-            {
-                stateMachine.ChangeState(controller.BasicAttackState);
-            }
-            else
-            {
-                stateMachine.ChangeState(controller.SuppressiveFireState);
-            }
+            StateMachine.ChangeState(StateMachine.PickChaseCombatState());
         }
     }
 }

@@ -1,25 +1,9 @@
 namespace Enemy.Boss.States
 {
-    public class BossDeathState : BossState
+    public class BossDeathState : BossFightState
     {
-        public BossDeathState(BossController controller, BossStateMachine stateMachine, BossConfig config) : base(controller, stateMachine, config)
-        {
-        }
+        public BossDeathState(BossFightStateMachine stateMachine) : base(stateMachine) { }
 
-        public override void Enter()
-        {
-            controller.SetMovementEnabled(false);
-            if (controller.Agent)
-            {
-                controller.Agent.enabled = false;
-            }
-
-            controller.PlayAnimation("Death");
-            controller.StartSelfDestruct();
-        }
-
-        public override void LogicUpdate()
-        {
-        }
+        public override void Enter() => StateMachine.Boss.EnterDeath();
     }
 }
