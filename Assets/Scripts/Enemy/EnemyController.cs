@@ -268,27 +268,23 @@ namespace Enemy
         public bool ShouldEnterAvoidFromIdle() =>
             IsPeacefulModeEnabled && ShouldAvoidByLowHealth && PlayerTransform;
 
-        public bool ShouldEngageFromIdle() => PlayerTransform && CanSeePlayer();
+        public bool ShouldEngageFromIdle() =>
+            !IsPeacefulModeEnabled && PlayerTransform && CanSeePlayer();
 
         public virtual bool ShouldChaseAfterHit()
         {
-            if (IsPeacefulModeEnabled)
-            {
-                return !ShouldAvoidByLowHealth && GetDistanceToPlayer() > GetAttackRange();
-            }
-
+            if (IsPeacefulModeEnabled) return false;
             return GetDistanceToPlayer() > GetAttackRange();
         }
 
         public virtual bool ShouldCombatAfterHit()
         {
-            if (IsPeacefulModeEnabled)
-            {
-                return false;
-            }
-
+            if (IsPeacefulModeEnabled) return false;
             return GetDistanceToPlayer() <= GetAttackRange();
         }
+
+        public bool ShouldFleeAfterHit() =>
+            IsPeacefulModeEnabled && ShouldAvoidByLowHealth;
 
         public bool ShouldReturnIdleAfterHit() =>
             IsPeacefulModeEnabled && !ShouldAvoidByLowHealth;

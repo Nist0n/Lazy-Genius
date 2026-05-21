@@ -38,11 +38,7 @@ namespace Enemy
 
         public override bool ShouldChaseAfterHit() => false;
 
-        public override bool ShouldCombatAfterHit()
-        {
-            if (IsPeacefulModeEnabled) return false;
-            return true;
-        }
+        public override bool ShouldCombatAfterHit() => !IsPeacefulModeEnabled;
 
         public override void ResetCombatOverrides()
         {

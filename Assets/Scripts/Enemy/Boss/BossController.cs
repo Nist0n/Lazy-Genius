@@ -37,6 +37,7 @@ namespace Enemy.Boss
 
         private BossFightStateMachine _fightStateMachine;
         private float _enragedIntroStartTime;
+        private bool _aggroedByPlayer;
 
         private Coroutine _basicAttackRoutine;
         private Coroutine _suppressiveFireRoutine;
@@ -50,6 +51,7 @@ namespace Enemy.Boss
         public bool IsDead { get; private set; }
         public bool IsPeacefulModeEnabled { get; private set; }
         public bool IsEnraged { get; private set; }
+        public bool IsCombatAllowed => !IsPeacefulModeEnabled || _aggroedByPlayer;
         public float LastRocketBarrageTime { get; set; } = -999f;
 
         public float GetHealth() => _currentHealth;
@@ -291,7 +293,33 @@ namespace Enemy.Boss
                 return;
             }
 
+            if (IsPeacefulModeEnabled)
+            {
+                if (IsDamageFromPlayer(damageInfo))
+                {
+                    _aggroedByPlayer = true;
+                    _fightStateMachine.ChangeState(_fightStateMachine.CreateChaseState());
+                }
+
+                return;
+            }
+
             _fightStateMachine.ChangeState(_fightStateMachine.CreateChaseState());
+        }
+
+        private static bool IsDamageFromPlayer(DamageInfo damageInfo)
+        {
+            if (!damageInfo.SourceObject)
+            {
+                return false;
+            }
+
+            if (damageInfo.SourceObject.CompareTag("Player"))
+            {
+                return true;
+            }
+
+            return damageInfo.SourceObject.transform.root.CompareTag("Player");
         }
 
         private bool CanSeePlayer()
@@ -521,7 +549,7 @@ namespace Enemy.Boss
 
         public bool ShouldChaseFromIdle()
         {
-            if (!PlayerTransform || !config || !CanSeePlayer() || IsPeacefulModeEnabled)
+            if (!IsCombatAllowed || !PlayerTransform || !config || !CanSeePlayer())
             {
                 return false;
             }
@@ -532,7 +560,7 @@ namespace Enemy.Boss
 
         public bool ShouldBasicAttackFromIdle()
         {
-            if (!PlayerTransform || !config || !CanSeePlayer() || IsPeacefulModeEnabled)
+            if (!IsCombatAllowed || !PlayerTransform || !config || !CanSeePlayer())
             {
                 return false;
             }

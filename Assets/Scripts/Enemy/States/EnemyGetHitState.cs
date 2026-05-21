@@ -19,7 +19,11 @@ namespace Enemy.States
                 return;
             }
 
-            if (StateMachine.Enemy.ShouldReturnIdleAfterHit())
+            if (StateMachine.Enemy.ShouldFleeAfterHit() || StateMachine.Enemy.ShouldEnterAvoidFromIdle())
+            {
+                StateMachine.ChangeState(StateMachine.CreateAvoidState());
+            }
+            else if (StateMachine.Enemy.ShouldReturnIdleAfterHit())
             {
                 StateMachine.ChangeState(StateMachine.CreateIdleState());
             }
@@ -30,10 +34,6 @@ namespace Enemy.States
             else if (StateMachine.Enemy.ShouldCombatAfterHit())
             {
                 StateMachine.ChangeState(StateMachine.CreateCombatState());
-            }
-            else if (StateMachine.Enemy.ShouldEnterAvoidFromIdle())
-            {
-                StateMachine.ChangeState(StateMachine.CreateAvoidState());
             }
             else
             {
